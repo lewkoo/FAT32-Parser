@@ -9,6 +9,9 @@
 #ifndef OS_A3_BSParser_h
 #define OS_A3_BSParser_h
 
-void parseBS(const char *disk);
+#include "fat32.h"
+
+void parseBS(char *disk);
+void staticParseBS(fat32BS *boot_sector, unsigned char *buffer);
 
 #endif

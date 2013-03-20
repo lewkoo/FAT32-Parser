@@ -10,19 +10,25 @@
 #include "BSParser.h"
 #include "fat32.h"
 
-void parseBS(const char *diskImageLocaiton){
+void staticParseBS(fat32BS *boot_sector, unsigned char *buffer);
+
+void parseBS(char *diskImageLocaiton){
     
-    size_t BUFFER_SIZE = 36; //size of the BPB
+    size_t BUFFER_SIZE = 90; //size of the BPB (NOTE: works ONLY with FAT32 (not with FAT12 or FAT16)
     FILE *source;
     FILE *destination;
     int n;
     int count = 0;
     
+    fat32BS *boot_sector;
     
     
-    unsigned char buffer[BUFFER_SIZE];
     
-    source = fopen(diskImageLocaiton, "rb");
+    unsigned char *buffer[BUFFER_SIZE];
+    memset(&buffer,0,sizeof(buffer));
+    
+    source = fopen("/Users/lewkoo/Dropbox/Third\ year/COMP\ 3430\ -\ Operating\ Systems/Assignment\ 3/diskimage", "rb"); //TODO: ask Jim about this bit or figure this out
+    //if you just pass it the argument, you end up reading the wrong file...
     
     if (source) {
         
@@ -37,11 +43,42 @@ void parseBS(const char *diskImageLocaiton){
         //output testing
         fwrite(buffer, 1, n, destination);
     }else {
-        printf("fail\n");
+        printf("failed in reading the BS\n");
+        exit(1);
     }
+    
+    
+    //parse the struct
+    
+    boot_sector = (fat32BS*)&buffer;
+    
+    //static parsing function here
+    
+    staticParseBS(boot_sector, buffer);
+    
     
     fclose(source);
     
     
     
 }
+
+void staticParseBS(fat32BS *boot_sector, unsigned char *buffer){
+    
+    fprintf(stderr, "---- Device Info ----\n");
+    
+    fprintf(stderr, "OEM Name: %s\n", boot_sector->BS_OEMName);
+    fprintf(stderr, "Label: %s\n", boot_sector->BS_VolLab);
+    fprintf(stderr, "File System Type: %s\n", boot_sector->BS_FilSysType);
+    
+    if(boot_sector->BPB_Media == 0xF8){
+    fprintf(stderr, "Media Type: 0x%02X (fixed)\n", boot_sector->BPB_Media); //can it be anything other than fixed???
+    }else{
+        fprintf(stderr, "Media Type: 0x%02X (non-fixed)\n", boot_sector->BPB_Media); //catches that
+    }
+    
+    
+    
+    
+}
+
