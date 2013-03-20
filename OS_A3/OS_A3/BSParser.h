@@ -9,6 +9,6 @@
 #ifndef OS_A3_BSParser_h
 #define OS_A3_BSParser_h
 
-void parseBS(char *disk);
+void parseBS(const char *disk);
 
 #endif

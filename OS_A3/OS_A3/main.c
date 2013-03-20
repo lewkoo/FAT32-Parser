@@ -11,12 +11,11 @@
 
 int main(int argc, const char * argv[])
 {
-
-    // insert code here...
+ 
+    //usage check up here
     
-    
-    
-    parseBS("/Users/lewkoo/Dropbox/Third\ year/COMP\ 3430\ -\ Operating\ Systems/Assignment\ 3/diskimage");
+    parseBS(argv[0]); //probably should return the struct
+                      //really depends on how I want to structure this
     
     printf("\nExecution finished\n");
     return 0;

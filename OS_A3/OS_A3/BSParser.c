@@ -10,20 +10,19 @@
 #include "BSParser.h"
 #include "fat32.h"
 
-void parseBS(char *diskImageLocaiton){
+void parseBS(const char *diskImageLocaiton){
     
-    int BUFFER_SIZE = 36; //size of the BPB
+    size_t BUFFER_SIZE = 36; //size of the BPB
     FILE *source;
     FILE *destination;
     int n;
     int count = 0;
-    int written = 0;
     
     
     
     unsigned char buffer[BUFFER_SIZE];
     
-    source = fopen("/Users/lewkoo/Dropbox/Third year/COMP 3430 - Operating Systems/Assignment 3/diskimage", "rb");
+    source = fopen(diskImageLocaiton, "rb");
     
     if (source) {
         

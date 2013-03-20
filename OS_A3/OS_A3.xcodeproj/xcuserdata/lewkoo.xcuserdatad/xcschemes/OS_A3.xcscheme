@@ -57,6 +57,12 @@
             ReferencedContainer = "container:OS_A3.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "/Users/lewkoo/Dropbox/Third year/COMP 3430 - Operating Systems/Assignment 3/diskimage"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
