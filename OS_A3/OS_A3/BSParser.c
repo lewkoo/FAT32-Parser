@@ -14,7 +14,7 @@ void staticParseBS(fat32BS *boot_sector, unsigned char *buffer);
 
 void parseBS(char *diskImageLocaiton){
     
-    size_t BUFFER_SIZE = 90; //size of the BPB (NOTE: works ONLY with FAT32 (not with FAT12 or FAT16)
+    size_t BUFFER_SIZE = sizeof(fat32BS); //size of the BPB (NOTE: works ONLY with FAT32 (not with FAT12 or FAT16)
     FILE *source;
     FILE *destination;
     int n;
@@ -27,13 +27,13 @@ void parseBS(char *diskImageLocaiton){
     unsigned char *buffer[BUFFER_SIZE];
     memset(&buffer,0,sizeof(buffer));
     
-    source = fopen("/Users/lewkoo/Dropbox/Third\ year/COMP\ 3430\ -\ Operating\ Systems/Assignment\ 3/diskimage", "rb"); //TODO: ask Jim about this bit or figure this out
+    source = fopen("/Users/lewkoo/Dropbox/Third\ year/COMP\ 3430\ -\ Operating\ Systems/Assignment\ 3/diskimage", "r"); //TODO: ask Jim about this bit or figure this out
     //if you just pass it the argument, you end up reading the wrong file...
     
     if (source) {
         
         //output testing
-        destination = fopen("/Users/lewkoo/Desktop/output", "wb");
+        destination = fopen("/Users/lewkoo/Desktop/output", "w");
         
         n = fread(buffer, 1, BUFFER_SIZE, source);
         count += n;
@@ -64,6 +64,12 @@ void parseBS(char *diskImageLocaiton){
 }
 
 void staticParseBS(fat32BS *boot_sector, unsigned char *buffer){
+    
+    //add \0
+    
+    boot_sector->BS_VolLab[BS_VolLab_LENGTH-1] = '\0';
+    boot_sector->BS_FilSysType[BS_FilSysType_LENGTH-1] = '\0';
+    
     
     fprintf(stderr, "---- Device Info ----\n");
     
