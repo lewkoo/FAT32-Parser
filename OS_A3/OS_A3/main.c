@@ -13,8 +13,12 @@ int main(int argc, const char * argv[])
 {
  
     //usage check up here
+    char* fileSystemPath = malloc(sizeof(argv[0])+1);
+    fileSystemPath = (char *)argv[1];
+    fprintf(stderr,"Reading from: %s\n" ,fileSystemPath);
     
-    parseBS(argv[0]); //probably should return the struct
+    
+    parseBS(fileSystemPath); //probably should return the struct
                       //really depends on how I want to structure this
     
     printf("\nExecution finished\n");

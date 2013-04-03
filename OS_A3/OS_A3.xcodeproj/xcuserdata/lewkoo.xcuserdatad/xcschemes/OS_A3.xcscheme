@@ -62,6 +62,10 @@
             argument = "/Users/lewkoo/Dropbox/Third\ year/COMP\ 3430\ -\ Operating\ Systems/Assignment\ 3/diskimage"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/lewkoo/Dropbox/Third\ year/COMP\ 3430\ -\ Operating\ Systems/Assignment\ 3/diskimage"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>

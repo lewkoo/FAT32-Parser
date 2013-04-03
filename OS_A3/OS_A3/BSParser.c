@@ -27,7 +27,7 @@ void parseBS(char *diskImageLocaiton){
     unsigned char *buffer[BUFFER_SIZE];
     memset(&buffer,0,sizeof(buffer));
     
-    source = fopen("/Users/lewkoo/Dropbox/Third\ year/COMP\ 3430\ -\ Operating\ Systems/Assignment\ 3/diskimage", "r"); //TODO: ask Jim about this bit or figure this out
+    source = fopen(diskImageLocaiton, "r"); //TODO: ask Jim about this bit or figure this out
     //if you just pass it the argument, you end up reading the wrong file...
     
     if (source) {
@@ -37,8 +37,7 @@ void parseBS(char *diskImageLocaiton){
         
         n = fread(buffer, 1, BUFFER_SIZE, source);
         count += n;
-        printf("n = %d\n", n);
-        printf("%d bytes read from diskimage.\n", count);
+        printf("BS parser read %d bytes read from diskimage.\n\n", count);
         
         //output testing
         fwrite(buffer, 1, n, destination);
@@ -65,10 +64,11 @@ void parseBS(char *diskImageLocaiton){
 
 void staticParseBS(fat32BS *boot_sector, unsigned char *buffer){
     
-    //add \0
+    //null terminate osme of them
     
     boot_sector->BS_VolLab[BS_VolLab_LENGTH-1] = '\0';
     boot_sector->BS_FilSysType[BS_FilSysType_LENGTH-1] = '\0';
+    //boot_sector->BS_OEMName[BS_OEMName_LENGTH-1] = '\0';
     
     
     fprintf(stderr, "---- Device Info ----\n");
@@ -82,6 +82,8 @@ void staticParseBS(fat32BS *boot_sector, unsigned char *buffer){
     }else{
         fprintf(stderr, "Media Type: 0x%02X (non-fixed)\n", boot_sector->BPB_Media); //catches that
     }
+    
+    
     
     
     
