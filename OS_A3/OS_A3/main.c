@@ -8,9 +8,12 @@
 
 #include <stdio.h>
 #include "BSParser.h"
+#include "fat32.h"
 
 int main(int argc, const char * argv[])
 {
+    
+    fat32BS *boot_sector;
  
     //usage check up here
     char* fileSystemPath = malloc(sizeof(argv[0])+1);
@@ -18,8 +21,17 @@ int main(int argc, const char * argv[])
     fprintf(stderr,"Reading from: %s\n" ,fileSystemPath);
     
     
-    parseBS(fileSystemPath); //probably should return the struct
-                      //really depends on how I want to structure this
+    boot_sector = parseAndReturnBS(fileSystemPath);
+    
+    if(boot_sector != NULL){
+        //inicialise FAT32 controller
+        printf("\nInitializing FAT 32 controller\n");
+        
+        
+    }else{
+        //report an error, quit
+    }
+                      
     
     printf("\nExecution finished\n");
     return 0;
