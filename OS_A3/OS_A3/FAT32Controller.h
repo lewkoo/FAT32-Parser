@@ -14,6 +14,6 @@
 void startCL(fat32BS *boot_sector); //starts the command line interface
 
 //helper functions
-int validateBS(fat32BS *boot_sector);
+uint8_t validateBS(fat32BS *boot_sector);
 
 #endif

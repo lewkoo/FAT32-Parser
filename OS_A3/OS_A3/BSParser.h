@@ -15,5 +15,6 @@ fat32BS* parseAndReturnBS(char *diskImageLocaiton);
 void parseBS(char *disk);
 void staticParseBS(fat32BS *boot_sector);
 uint8_t checkSignatureBytes(fat32BS *boot_sector);
+uint8_t checkFAT16Descriptors(fat32BS *boot_sector);
 
 #endif

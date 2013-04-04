@@ -50,10 +50,13 @@ fat32BS* parseAndReturnBS(char *diskImageLocaiton){
     
     boot_sector = (fat32BS*)&buffer;
     
-    
     //checking signature bytes
     
     uint8_t result = checkSignatureBytes(boot_sector);
+    
+    //checking if FAT32
+    
+    result = checkFAT16Descriptors(boot_sector);
     
     //static parsing function here
     
@@ -115,6 +118,10 @@ void parseBS(char *diskImageLocaiton){
     
     uint8_t result = checkSignatureBytes(boot_sector);
     
+    //checking if FAT32
+    
+    result = checkFAT16Descriptors(boot_sector);
+    
     //static parsing function here
 
     if(result == 1){
@@ -133,10 +140,20 @@ void parseBS(char *diskImageLocaiton){
 
 uint8_t checkSignatureBytes(fat32BS *boot_sector){
     if(boot_sector->BS_BootSig == 0x29){
-        fprintf(stderr,"%s\n\n", "Signature byte is okay.");
+        fprintf(stderr,"%s\n", "Signature byte is okay.");
         return 1;
     }else{
-        fprintf(stderr,"%s\n\n", "Signature byte is not set. Sorry.");
+        fprintf(stderr,"%s\n", "Signature byte is not set. Sorry.");
+        return 0;
+    }
+}
+
+uint8_t checkFAT16Descriptors(fat32BS *boot_sector){
+    if(boot_sector->BPB_FATSz16 == 0x00){
+        fprintf(stderr,"%s\n\n", "FAT32 system it is.");
+        return 1;
+    }else{
+        fprintf(stderr,"%s\n\n", "FAT16? No, sorry.");
         return 0;
     }
 }
