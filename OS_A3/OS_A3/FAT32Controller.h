@@ -15,5 +15,6 @@ void startCL(fat32BS *boot_sector); //starts the command line interface
 
 //helper functions
 uint8_t validateBS(fat32BS *boot_sector);
+uint8_t calculateFATEntry(uint32_t clusterNumber, fat32BS *boot_sector);
 
 #endif

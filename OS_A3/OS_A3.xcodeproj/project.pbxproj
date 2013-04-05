@@ -30,6 +30,7 @@
 		2A8E0B1D170D1B7100BD5C59 /* FAT32Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FAT32Controller.h; sourceTree = "<group>"; };
 		2A8E0B1E170D1C1300BD5C59 /* FAT32Controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FAT32Controller.c; sourceTree = "<group>"; };
 		2A8E0B21170D213700BD5C59 /* dir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dir.h; sourceTree = "<group>"; };
+		2AD5D4F5170E5B24002DB119 /* FSInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSInfo.h; sourceTree = "<group>"; };
 		2AE2534016F9411100BCA4E2 /* OS_A3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OS_A3; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AE2534316F9411100BCA4E2 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		2AE2534516F9411100BCA4E2 /* OS_A3.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = OS_A3.1; sourceTree = "<group>"; };
@@ -76,6 +77,7 @@
 				2A8E0B1D170D1B7100BD5C59 /* FAT32Controller.h */,
 				2A8E0B1E170D1C1300BD5C59 /* FAT32Controller.c */,
 				2A8E0B21170D213700BD5C59 /* dir.h */,
+				2AD5D4F5170E5B24002DB119 /* FSInfo.h */,
 			);
 			path = OS_A3;
 			sourceTree = "<group>";

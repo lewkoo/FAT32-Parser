@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "BSParser.h"
 #include "fat32.h"
+#include "FAT32Controller.h"
 
 int main(int argc, const char * argv[])
 {
@@ -21,12 +22,15 @@ int main(int argc, const char * argv[])
     fprintf(stderr,"Reading from: %s\n" ,fileSystemPath);
     
     
-    boot_sector = parseAndReturnBS(fileSystemPath);
+    boot_sector = parseAndReturnBS(fileSystemPath);//gets the BS data
+    uint8_t result = validateBS(boot_sector);//tests if it is FAT32
+
     
-    if(boot_sector != NULL){
+    if(boot_sector != NULL && result == 1){
         //inicialise FAT32 controller
         printf("\nInitializing FAT 32 controller\n");
-        
+        staticParseBS(boot_sector);
+                
         
     }else{
         //report an error, quit
