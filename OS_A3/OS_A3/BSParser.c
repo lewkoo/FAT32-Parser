@@ -32,14 +32,14 @@ fat32BS* parseAndReturnBS(char *diskImageLocaiton){
     if (source) {
         
         //output testing
-        destination = fopen("/Users/lewkoo/Desktop/output", "w");
+        //destination = fopen("/Users/lewkoo/Desktop/output", "w");
         
         n = fread(buffer, 1, BUFFER_SIZE, source);
         count += n;
         printf("BS parser read %d bytes read from diskimage.\n\n", count);
         
         //output testing
-        fwrite(buffer, 1, n, destination);
+        //fwrite(buffer, 1, n, destination);
     }else {
         printf("failed in reading the BS\n");
         exit(1);

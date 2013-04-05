@@ -102,12 +102,14 @@ uint8_t calculateFATEntry(uint32_t clusterNumber, fat32BS *boot_sector){ //calcu
     if(fatType == FAT16){
         FATOffset = clusterNumber * 2;
     }else if(fatType == FAT32){
-        FATOffset = clusterNumber * 4;
+        FATOffset = clusterNumber * 4; //rename - byts per FAT entry
     }
     
-    ThisFatSecNum = boot_sector->BPB_RsvdSecCnt + (FATOffset / boot_sector->BPB_BytesPerSec);
+    ThisFatSecNum = boot_sector->BPB_RsvdSecCnt + (FATOffset / boot_sector->BPB_BytesPerSec); //sector location
     
-    ThisFATEntOffset = FATOffset % boot_sector->BPB_BytesPerSec;
+    ThisFATEntOffset = FATOffset % boot_sector->BPB_BytesPerSec; //
+    
+    //seek to ThiFatSecNum * boot_sector->BPB_BytesPerSec
     
     
     
