@@ -13,21 +13,20 @@
 /* dir info constants */
 #define DIR_NAME_LENGTH 11
 
-
-
 #pragma pack(push)
 #pragma pack(1)
 struct fatDir_struct {
     char DIR_Name[DIR_NAME_LENGTH];
     uint8_t DIR_Attr;
     uint8_t DIR_NTRes;
+    uint8_t DIR_CrtTimeTenth;
     uint16_t DIR_CrtTime;
     uint16_t DIR_CrtDate;
     uint16_t DIR_LstAccDate;
-    uint16_t DIR_FstClusHI;
+    uint16_t DIR_FstClusHi;
     uint16_t DIR_WrtTime;
     uint16_t DIR_WrtDate;
-    uint16_t DIR_FstClusLO;
+    uint16_t DIR_FstClusLo;
     uint32_t DIR_FileSize;
     
 };

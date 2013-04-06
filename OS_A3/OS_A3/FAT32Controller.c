@@ -10,6 +10,9 @@
 #include "FAT32Controller.h"
 #include "BSParser.h"
 #include "dir.h"
+#include "Util.h"
+
+extern void* memset(); //to suppress the memset warninig.
 
 enum FATType{
     FAT16,
@@ -18,13 +21,11 @@ enum FATType{
 
 enum FATType fatType;
 char *diskImageLocaiton = NULL;
-//fat32BS *boot_sector = NULL;
+fat32BS *boot_sector = NULL;
 
 
-void startCL(fat32BS *boot_sec){
-    //setBootSector(boot_sector);
-    //boot_sector = boot_sec;
-    locateRootDir(boot_sec);
+void startCL(){
+    locateRootDir();
 }
 
 uint8_t validateBS(fat32BS *boot_sector){
@@ -68,13 +69,13 @@ uint8_t validateBS(fat32BS *boot_sector){
     return result;
 }
 
-void locateRootDir(fat32BS *boot_sector){
+void locateRootDir(){
     //root dir is pointed to by BPB_RootClus
     //but that is just a cluster
     //either way, we have the cluster number (usually 2)
     //use calculateFATEntry to get the data region of Nth cluster
     
-    /*bool testResult = FALSE;
+    bool testResult = FALSE;
     
     testResult = validateBootSector();
     
@@ -88,61 +89,43 @@ void locateRootDir(fat32BS *boot_sector){
     if(testResult == FALSE){
         fprintf(stderr, "Failed to validate Disk Image Location. Exit.");
         //break;
-    }*/
+    }
     
     long currPos; //for testing
-    int n; // number of bytes read
+    size_t n = 0; // number of bytes read
     FILE *source;
-    FILE *destination; //for testing
     size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
     unsigned char buffer[BUFFER_SIZE];
-    //buffer = (unsigned char*)boot_sector->BS_SigB+8;
     memset(&buffer,0,sizeof(buffer));
     
     //The White paper Way
      
-     uint32_t rootDirCLusterNum = boot_sector->BPB_RootClus;
-    
-    uint64_t RootDirSectors = ((boot_sector->BPB_RootEntCnt * 32) + (boot_sector->BPB_BytesPerSec-1)) / boot_sector->BPB_BytesPerSec;
-    uint64_t FistDataSector = boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_NumFATs * boot_sector->BPB_FATSz32) + RootDirSectors;
-    
-    uint32_t FirstSectorofCluster = ((rootDirCLusterNum-2) * boot_sector->BPB_SecPerClus) + FistDataSector;
-    
-    
-    uint64_t start_sector = boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_FATSz32 * boot_sector->BPB_NumFATs) + (boot_sector->BPB_RootClus-2)*boot_sector->BPB_SecPerClus;
-    
-    
-    
-    //the wiki way
-    
-   /* uint64_t first_data_sector = boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_NumFATs * boot_sector->BPB_FATSz32);
-    
-    uint64_t root_cluster_32 = boot_sector->BPB_RootClus;
-    uint64_t absolute_cluster = (root_cluster_32-2) + first_data_sector;
-    
-    //uint64_t sector = absolute_cluster+(boot_sector->BPB_RootEntCnt * 32 / boot_sector->BPB_BytesPerSec);
-    uint64_t sector = (boot_sector->BPB_RootClus)*boot_sector->BPB_SecPerClus + boot_sector->BPB_RsvdSecCnt + boot_sector->BPB_FATSz32*boot_sector->BPB_NumFATs;*/
+    uint32_t rootDirCLusterNum = boot_sector->BPB_RootClus;
+    uint64_t FirstSectorofCluster = getDataOnClusterNum(rootDirCLusterNum, boot_sector);
     
      
     source = fopen(diskImageLocaiton, "r");
     
-    int result = fseek(source, (long)FistDataSector*boot_sector->BPB_BytesPerSec, SEEK_SET);
+    int result = fseek(source, (long)FirstSectorofCluster*boot_sector->BPB_BytesPerSec, SEEK_SET);
     
-    //if(result == 0){
+    if(result == 0){
         //success
-    //}else{
-      //  fprintf(stderr, "Failed to seek.");
-    //}
-    
-    currPos = ftell(source);
-    
-    if(source){
-    
-    n = fread(buffer, 1, BUFFER_SIZE, source);
+    }else{
+        fprintf(stderr, "Failed to seek.");
     }
     
-    fatDir *tstStruct = (fatDir*)&buffer;
     
+    if(source){
+        n = fread(buffer, 1, BUFFER_SIZE, source);
+    }
+    
+    if(n == BUFFER_SIZE){
+    //processing
+    fatDir *tstStruct = (fatDir*)&buffer;
+    }else{
+        fprintf(stderr, "Error in read.");
+    }
+        
 }
 
 
@@ -152,7 +135,7 @@ void setDiskImageLocation(char *diskImageLoc){
 }
 
 void setBootSector(fat32BS *boot_sec){
-    //boot_sector = boot_sec;
+    boot_sector = boot_sec;
 }
 
 bool validateDiskImageLocation(){
@@ -163,11 +146,11 @@ bool validateDiskImageLocation(){
     }
 }
 bool validateBootSector(){
-    //if(boot_sector != NULL){
-     //   return TRUE;
-    //}else{
-      //  return FALSE;
-    //}
+    if(boot_sector != NULL){
+        return TRUE;
+    }else{
+        return FALSE;
+    }
 }
 
 
