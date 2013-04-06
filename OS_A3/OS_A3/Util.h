@@ -12,6 +12,6 @@
 #include <inttypes.h>
 #include "fat32.h"
 
-uint64_t getDataOnClusterNum(uint32_t clusterNum, fat32BS *boot_sector);
+uint64_t getDataOnClusterNum(uint64_t clusterNum, fat32BS *boot_sector);
 
 #endif

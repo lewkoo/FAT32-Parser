@@ -28,6 +28,8 @@
 
 char *vol_ID;
 
+unsigned char *newBuf;
+
 
 extern void* memset(); //to suppress the memset warninig.
 
@@ -39,10 +41,12 @@ enum FATType{
 enum FATType fatType;
 char *diskImageLocaiton = NULL;
 fat32BS *boot_sector = NULL;
+uint64_t currDirClusterNum;
 
 
 void startCL(){
     locateRootDir();
+    
 }
 
 uint8_t validateBS(fat32BS *boot_sector){
@@ -86,44 +90,79 @@ uint8_t validateBS(fat32BS *boot_sector){
     return result;
 }
 
+void setCurrDir(uint64_t newDirCluster){
+    
+    size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
+    //unsigned char buffer[BUFFER_SIZE];
+    newBuf = malloc(BUFFER_SIZE);
+    //memset(&newBuf,0,sizeof(newBuf));
+    
+    uint64_t FirstSectorofCluster = getDataOnClusterNum(newDirCluster, boot_sector);
+    
+    currDirClusterNum = FirstSectorofCluster; //setting the curDir to rootDir
+    
+    //read the contents of a sector into the buffer
+    readSector(currDirClusterNum, newBuf);
+    //processing
+    fatDir *tstStruct = (fatDir*)&newBuf[0];
+    printDir(tstStruct, newBuf);
+    
+    
+    
+    
+
+    
+}
+
 void locateRootDir(){
-    //root dir is pointed to by BPB_RootClus
-    //but that is just a cluster
-    //either way, we have the cluster number (usually 2)
-    //use calculateFATEntry to get the data region of Nth cluster
+    validateBsAndImageLoc();
     
-    bool testResult = FALSE;
-    
-    testResult = validateBootSector();
-    
-    if(testResult == FALSE){
-        fprintf(stderr, "Failed to validate Boot Sector. Exit.");
-        //break;
-    }
-    
-    testResult = validateDiskImageLocation();
-    
-    if(testResult == FALSE){
-        fprintf(stderr, "Failed to validate Disk Image Location. Exit.");
-        //break;
-    }
-    
-    long currPos; //for testing
-    size_t n = 0; // number of bytes read
-    FILE *source;
+  
     size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
     unsigned char buffer[BUFFER_SIZE];
-    memset(&buffer,0,sizeof(buffer));
+    //memset(&buffer,0,sizeof(buffer));
     
     //The White paper Way
      
     uint32_t rootDirCLusterNum = boot_sector->BPB_RootClus;
     uint64_t FirstSectorofCluster = getDataOnClusterNum(rootDirCLusterNum, boot_sector);
     
-     
+    currDirClusterNum = FirstSectorofCluster; //setting the curDir to rootDir
+    
+    //read the contents of a sector into the buffer
+    readSector(currDirClusterNum, buffer);
+    //processing
+    fatDir *tstStruct = (fatDir*)&buffer[0];
+    
+    bool result = verifyRootDir(tstStruct);
+    
+    if(result != TRUE){
+        fprintf(stderr,"%s\n", "Root dir corrupted");
+    }
+    
+    //setting the volume name
+    vol_ID = tstStruct->DIR_Name;
+    vol_ID[DIR_NAME_LENGTH] = '\0';
+
+    //move to dir command
+    printDir(tstStruct, buffer);
+    
+    setCurrDir(5);
+    setCurrDir(2);
+    setCurrDir(5);
+    setCurrDir(2);
+}
+
+int readSector(uint64_t clusterNum, unsigned char *buffer){
+    int returnVal = 0;
+    size_t n = 0; // number of bytes read
+    FILE *source;
+    size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
+
+    
     source = fopen(diskImageLocaiton, "r");
     
-    int result = fseek(source, (long)FirstSectorofCluster*boot_sector->BPB_BytesPerSec, SEEK_SET);
+    int result = fseek(source, (long)clusterNum*boot_sector->BPB_BytesPerSec, SEEK_SET);
     
     if(result == 0){
         //success
@@ -135,52 +174,66 @@ void locateRootDir(){
     if(source){
         n = fread(buffer, 1, BUFFER_SIZE, source);
     }
-    
-    if(n == BUFFER_SIZE){
-    //processing
-    fatDir *tstStruct = (fatDir*)&buffer[0];
-        
-    //verify that it is a root dir
-    //check the ATTR_VOLUME_ID = should equal to 1
-    //check DIR_FstClus_HI and DIR_FstClusLO (always 0)
-    
-        vol_ID = tstStruct->DIR_Name;
-        vol_ID[DIR_NAME_LENGTH] = '\0';
-        
-        fprintf(stderr,"\n%s\n", "DIRECTORY LISTING");
-        fprintf(stderr,"%s: %s\n", "VOL_ID", vol_ID);
-        
-    
-    //set the volume ID to the Dir_Name of the root dir
-    
-    //printDir(tstStruct);
-        
-        for(int i = sizeof(fatDir); i < 16*sizeof(fatDir); i+=sizeof(fatDir)){
-            tstStruct = (fatDir*)&buffer[i];
-            
-            if( (tstStruct->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY){
-                
-                char *temp = tstStruct->DIR_Name;
-                
-                temp[DIR_NAME_LENGTH] = '\0';
 
-                fprintf(stderr,"<%s>        %d\n",temp, tstStruct->DIR_FileSize);
-            }else if( (tstStruct->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN){
-                char *temp = tstStruct->DIR_Name;
-                
-                temp[DIR_NAME_LENGTH] = '\0';
-                
-                fprintf(stderr,"%s        %d\n",temp, tstStruct->DIR_FileSize);
-            }
-                
-                
+    if(n != BUFFER_SIZE){
+        returnVal = 1;
+    }
+    
+    return returnVal;
+}
+
+void printDir(fatDir *dir, unsigned char *buffer){
+    
+    fatDir *tstStruct;
+    int i = 0;
+    
+    fprintf(stderr,"\n%s\n", "DIRECTORY LISTING");
+    fprintf(stderr,"%s: %s\n", "VOL_ID", vol_ID);
+    
+    //if root dir, skip over the first entry
+    if(isRoot(dir) == TRUE){
+        i = sizeof(fatDir);
+    }
+    
+    for(; i < 16*sizeof(fatDir); i+=sizeof(fatDir)){
+        tstStruct = (fatDir*)&buffer[i];
+        
+        if(tstStruct->DIR_Name[0] == DIR_FREE_STOP){
+            break;
+        }
+        
+        if( (tstStruct->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY){
+            
+            char *temp = tstStruct->DIR_Name;
+            
+            temp[DIR_NAME_LENGTH] = '\0';
+            
+            fprintf(stderr,"<%s>        %d\n",temp, tstStruct->DIR_FileSize);
+        }else if( (tstStruct->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN){
+            char *temp = tstStruct->DIR_Name;
+            
+            temp = processFileName(temp);
+            
+            temp[DIR_NAME_LENGTH] = '\0';
+            
+            fprintf(stderr,"%s        %d\n",temp, (tstStruct->DIR_FileSize/1024));
         }
         
         
-    }else{
-        fprintf(stderr, "Error in read.");
-    }
         
+        
+        
+    }
+
+    
+}
+
+bool verifyRootDir(fatDir *rootDir){
+    if( (rootDir->DIR_Attr & ATTR_VOLUME_ID) != ATTR_VOLUME_ID){
+        return FALSE;
+    }else{
+        return TRUE;
+    }
 }
 
 
@@ -202,6 +255,66 @@ bool validateDiskImageLocation(){
 }
 bool validateBootSector(){
     if(boot_sector != NULL){
+        return TRUE;
+    }else{
+        return FALSE;
+    }
+}
+
+void validateBsAndImageLoc(void) {
+    bool testResult = FALSE;
+    
+    testResult = validateBootSector();
+    
+    if(testResult == FALSE){
+        fprintf(stderr, "Failed to validate Boot Sector. Exit.");
+        //break;
+    }
+    
+    testResult = validateDiskImageLocation();
+    
+    if(testResult == FALSE){
+        fprintf(stderr, "Failed to validate Disk Image Location. Exit.");
+        //break;
+    }
+}
+
+
+
+//takes the FAT32 formatted file name
+//removes whitespaces, adds a dot between
+//filename and extension
+
+char *processFileName(char *fileName){
+    
+    char *output = fileName;
+    bool dotInserted = FALSE;
+    int j = 0;
+    int i = 0;
+    for(; i < strlen(fileName); i++,j++){
+        if(fileName[i]!=' '){
+                output[j] = fileName[i];
+        }
+        else{
+            if(dotInserted == FALSE){
+                output[j] = '.';
+                output[j++] = fileName[i];
+                dotInserted = TRUE;
+            }
+            j--;
+            
+        }
+            
+        
+        
+    }
+    output[j]='\0';
+    
+    return output;
+}
+
+bool isRoot(fatDir *toCheck){
+    if( (toCheck->DIR_Attr & ATTR_VOLUME_ID) != ATTR_VOLUME_ID){
         return TRUE;
     }else{
         return FALSE;
