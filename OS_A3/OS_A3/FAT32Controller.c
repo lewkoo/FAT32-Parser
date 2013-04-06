@@ -35,19 +35,11 @@ uint8_t validateBS(fat32BS *boot_sector){
     
     uint16_t RootDirSectors = ((boot_sector->BPB_RootEntCnt *32) +(boot_sector->BPB_BytesPerSec -1)) / boot_sector->BPB_BytesPerSec;
     
-
     
-    if(boot_sector->BPB_FATSz16 != 0){
-        FATSz = boot_sector->BPB_FATSz16;
-    }else{
         FATSz = boot_sector->BPB_FATSz32;
-    }
-    
-    if(boot_sector->BPB_TotSec16 != 0){
-        TotSec = boot_sector->BPB_TotSec16;
-    }else{
+
         TotSec = boot_sector->BPB_TotSec32;
-    }
+
     
     DataSec = TotSec - (boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_NumFATs * FATSz) + RootDirSectors );
     
@@ -107,16 +99,24 @@ uint8_t calculateFATEntry(uint32_t clusterNumber, fat32BS *boot_sector){ //calcu
     
     ThisFatSecNum = boot_sector->BPB_RsvdSecCnt + (FATOffset / boot_sector->BPB_BytesPerSec); //sector location
     
-    ThisFATEntOffset = FATOffset % boot_sector->BPB_BytesPerSec; //
+    ThisFATEntOffset = FATOffset % boot_sector->BPB_BytesPerSec; // this calculates the exact bit wise position within the sector
     
     //seek to ThiFatSecNum * boot_sector->BPB_BytesPerSec
     
+    //separate into two functions:
     
-    
-    
-    
-    
-    
-    
+    /*
+     1) Function calculates the ThisFatSecNum, load the sector from the memory - DONE
+     2) Function calculates the ThisFATEntOffset, seek to that locaiton in the sector - DONE
+     
+     3) Eliminate references to FAT16 - DONE
+     4) Define 4 as bytesPerFatEntry const - DONE
+     
+     5) Continue parsing root dir
+     
+     */
     
 }
+
+
+

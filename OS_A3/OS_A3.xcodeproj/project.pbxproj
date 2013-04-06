@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2A8E0B1F170D1C1300BD5C59 /* FAT32Controller.c in Sources */ = {isa = PBXBuildFile; fileRef = 2A8E0B1E170D1C1300BD5C59 /* FAT32Controller.c */; };
+		2A99041C170FB11B004FD61A /* FATTableMan.c in Sources */ = {isa = PBXBuildFile; fileRef = 2A99041B170FB11B004FD61A /* FATTableMan.c */; };
 		2AE2534416F9411100BCA4E2 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 2AE2534316F9411100BCA4E2 /* main.c */; };
 		2AE2534616F9411100BCA4E2 /* OS_A3.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2AE2534516F9411100BCA4E2 /* OS_A3.1 */; };
 		2AE2534F16F9494800BCA4E2 /* BSParser.c in Sources */ = {isa = PBXBuildFile; fileRef = 2AE2534E16F9494800BCA4E2 /* BSParser.c */; };
@@ -30,6 +31,8 @@
 		2A8E0B1D170D1B7100BD5C59 /* FAT32Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FAT32Controller.h; sourceTree = "<group>"; };
 		2A8E0B1E170D1C1300BD5C59 /* FAT32Controller.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FAT32Controller.c; sourceTree = "<group>"; };
 		2A8E0B21170D213700BD5C59 /* dir.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dir.h; sourceTree = "<group>"; };
+		2A99041A170FB0A2004FD61A /* FATTableMan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FATTableMan.h; sourceTree = "<group>"; };
+		2A99041B170FB11B004FD61A /* FATTableMan.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = FATTableMan.c; sourceTree = "<group>"; };
 		2AD5D4F5170E5B24002DB119 /* FSInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSInfo.h; sourceTree = "<group>"; };
 		2AE2534016F9411100BCA4E2 /* OS_A3 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = OS_A3; sourceTree = BUILT_PRODUCTS_DIR; };
 		2AE2534316F9411100BCA4E2 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
@@ -78,6 +81,8 @@
 				2A8E0B1E170D1C1300BD5C59 /* FAT32Controller.c */,
 				2A8E0B21170D213700BD5C59 /* dir.h */,
 				2AD5D4F5170E5B24002DB119 /* FSInfo.h */,
+				2A99041A170FB0A2004FD61A /* FATTableMan.h */,
+				2A99041B170FB11B004FD61A /* FATTableMan.c */,
 			);
 			path = OS_A3;
 			sourceTree = "<group>";
@@ -136,6 +141,7 @@
 				2AE2534416F9411100BCA4E2 /* main.c in Sources */,
 				2AE2534F16F9494800BCA4E2 /* BSParser.c in Sources */,
 				2A8E0B1F170D1C1300BD5C59 /* FAT32Controller.c in Sources */,
+				2A99041C170FB11B004FD61A /* FATTableMan.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
