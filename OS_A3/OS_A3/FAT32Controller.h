@@ -14,9 +14,11 @@ typedef int bool;
 #define FALSE   0
 
 #include "fat32.h"
+#include "dir.h"
 
 void startCL(); //starts the command line interface
 void locateRootDir();
+//void printDir(fatDir *dir);
 
 //setters
 void setDiskImageLocation(char *diskImageLocaiton);

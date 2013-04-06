@@ -12,6 +12,23 @@
 #include "dir.h"
 #include "Util.h"
 
+#define ATTR_READ_ONLY 0x01
+#define ATTR_HIDDEN    0x02
+#define ATTR_SYSTEM    0x04
+#define ATTR_VOLUME_ID 0x08
+#define ATTR_DIRECTORY 0x10
+#define ATTR_ARCHIVE   0x20
+
+//DIR_Name constants
+
+#define DIR_FREE_KEEP_GOING 0xE5
+#define DIR_FREE_STOP       0x00
+
+//volume ID array
+
+char *vol_ID;
+
+
 extern void* memset(); //to suppress the memset warninig.
 
 enum FATType{
@@ -121,7 +138,45 @@ void locateRootDir(){
     
     if(n == BUFFER_SIZE){
     //processing
-    fatDir *tstStruct = (fatDir*)&buffer;
+    fatDir *tstStruct = (fatDir*)&buffer[0];
+        
+    //verify that it is a root dir
+    //check the ATTR_VOLUME_ID = should equal to 1
+    //check DIR_FstClus_HI and DIR_FstClusLO (always 0)
+    
+        vol_ID = tstStruct->DIR_Name;
+        vol_ID[DIR_NAME_LENGTH] = '\0';
+        
+        fprintf(stderr,"\n%s\n", "DIRECTORY LISTING");
+        fprintf(stderr,"%s: %s\n", "VOL_ID", vol_ID);
+        
+    
+    //set the volume ID to the Dir_Name of the root dir
+    
+    //printDir(tstStruct);
+        
+        for(int i = sizeof(fatDir); i < 16*sizeof(fatDir); i+=sizeof(fatDir)){
+            tstStruct = (fatDir*)&buffer[i];
+            
+            if( (tstStruct->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY){
+                
+                char *temp = tstStruct->DIR_Name;
+                
+                temp[DIR_NAME_LENGTH] = '\0';
+
+                fprintf(stderr,"<%s>        %d\n",temp, tstStruct->DIR_FileSize);
+            }else if( (tstStruct->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN){
+                char *temp = tstStruct->DIR_Name;
+                
+                temp[DIR_NAME_LENGTH] = '\0';
+                
+                fprintf(stderr,"%s        %d\n",temp, tstStruct->DIR_FileSize);
+            }
+                
+                
+        }
+        
+        
     }else{
         fprintf(stderr, "Error in read.");
     }
