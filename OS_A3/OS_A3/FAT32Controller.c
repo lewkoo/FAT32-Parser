@@ -16,9 +16,14 @@ enum FATType{
 }FATType;
 
 enum FATType fatType;
+char *diskImageLocaiton = NULL;
+//fat32BS *boot_sector = NULL;
 
-void startCL(fat32BS *boot_sector){
-    
+
+void startCL(fat32BS *boot_sec){
+    //setBootSector(boot_sector);
+    //boot_sector = boot_sec;
+    locateRootDir(boot_sec);
 }
 
 uint8_t validateBS(fat32BS *boot_sector){
@@ -68,54 +73,97 @@ void locateRootDir(fat32BS *boot_sector){
     //either way, we have the cluster number (usually 2)
     //use calculateFATEntry to get the data region of Nth cluster
     
-    uint32_t rootDirCLusterNum = boot_sector->BPB_RootClus;
+    /*bool testResult = FALSE;
     
+    testResult = validateBootSector();
     
-    calculateFATEntry(rootDirCLusterNum, boot_sector);
+    if(testResult == FALSE){
+        fprintf(stderr, "Failed to validate Boot Sector. Exit.");
+        //break;
+    }
     
+    testResult = validateDiskImageLocation();
+    
+    if(testResult == FALSE){
+        fprintf(stderr, "Failed to validate Disk Image Location. Exit.");
+        //break;
+    }*/
+    
+    long currPos; //for testing
+    int n; // number of bytes read
+    FILE *source;
+    FILE *destination; //for testing
+    size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
+    unsigned char buffer[BUFFER_SIZE];
+    //buffer = (unsigned char*)boot_sector->BS_SigB+8;
+    memset(&buffer,0,sizeof(buffer));
+    
+    /* The White paper Way
+     
+     uint32_t rootDirCLusterNum = boot_sector->BPB_RootClus;
+    
+    //uint64_t sectorToLoad = getThisFatSecNum(rootDirCLusterNum, boot_sector);
+    
+    uint64_t RootDirSectors = ((boot_sector->BPB_RootEntCnt * 32) + (boot_sector->BPB_BytesPerSec-1)) / boot_sector->BPB_BytesPerSec;
+    uint64_t FistDataSector = boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_NumFATs * boot_sector->BPB_FATSz32) + RootDirSectors;
+    
+    uint32_t FirstSectorofCluster = ((rootDirCLusterNum-2) * boot_sector->BPB_SecPerClus) + FistDataSector;
+    */
+    
+    //the wiki way
+    
+    uint64_t first_data_sector = boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_NumFATs * boot_sector->BPB_FATSz32);
+    
+    uint64_t root_cluster_32 = boot_sector->BPB_RootClus;
+    uint64_t absolute_cluster = (root_cluster_32-2) + first_data_sector;
+    
+    uint64_t sector = absolute_cluster+(boot_sector->BPB_RootEntCnt * 32 / boot_sector->BPB_BytesPerSec);
+    
+     
+    source = fopen(diskImageLocaiton, "r");
+    
+    int result = fseek(source, (long)sector, SEEK_SET);
+    
+    //if(result == 0){
+        //success
+    //}else{
+      //  fprintf(stderr, "Failed to seek.");
+    //}
+    
+    currPos = ftell(source);
+    
+    if(source){
+    
+    n = fread(buffer, 1, BUFFER_SIZE, source);
+    }
+    
+    fat32BS tstStruct = *(fat32BS*)&buffer;
     
 }
 
-uint8_t calculateFATEntry(uint32_t clusterNumber, fat32BS *boot_sector){ //calculates the location of the cluster in FAT (read on p15)
-    
-    //returns the first sector of a given cluster
-    
-    uint16_t FATSz;
-    uint32_t FATOffset = clusterNumber * 4;
-    uint32_t ThisFatSecNum;
-    uint32_t ThisFATEntOffset;
-    
-    if(boot_sector->BPB_FATSz16 !=0){
-        FATSz = boot_sector->BPB_FATSz16;
+
+
+void setDiskImageLocation(char *diskImageLoc){
+    diskImageLocaiton = diskImageLoc;
+}
+
+void setBootSector(fat32BS *boot_sec){
+    //boot_sector = boot_sec;
+}
+
+bool validateDiskImageLocation(){
+    if(diskImageLocaiton != NULL){
+        return TRUE;
     }else{
-        FATSz = boot_sector->BPB_FATSz32;
+        return FALSE;
     }
-    
-    if(fatType == FAT16){
-        FATOffset = clusterNumber * 2;
-    }else if(fatType == FAT32){
-        FATOffset = clusterNumber * 4; //rename - byts per FAT entry
-    }
-    
-    ThisFatSecNum = boot_sector->BPB_RsvdSecCnt + (FATOffset / boot_sector->BPB_BytesPerSec); //sector location
-    
-    ThisFATEntOffset = FATOffset % boot_sector->BPB_BytesPerSec; // this calculates the exact bit wise position within the sector
-    
-    //seek to ThiFatSecNum * boot_sector->BPB_BytesPerSec
-    
-    //separate into two functions:
-    
-    /*
-     1) Function calculates the ThisFatSecNum, load the sector from the memory - DONE
-     2) Function calculates the ThisFATEntOffset, seek to that locaiton in the sector - DONE
-     
-     3) Eliminate references to FAT16 - DONE
-     4) Define 4 as bytesPerFatEntry const - DONE
-     
-     5) Continue parsing root dir
-     
-     */
-    
+}
+bool validateBootSector(){
+    //if(boot_sector != NULL){
+     //   return TRUE;
+    //}else{
+      //  return FALSE;
+    //}
 }
 
 
