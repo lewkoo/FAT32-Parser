@@ -126,7 +126,7 @@ void locateRootDir(fat32BS *boot_sector){
      
     source = fopen(diskImageLocaiton, "r");
     
-    int result = fseek(source, (long)FistDataSector*512, SEEK_SET);
+    int result = fseek(source, (long)FistDataSector*boot_sector->BPB_BytesPerSec, SEEK_SET);
     
     //if(result == 0){
         //success
@@ -141,7 +141,7 @@ void locateRootDir(fat32BS *boot_sector){
     n = fread(buffer, 1, BUFFER_SIZE, source);
     }
     
-    fatDir tstStruct = *(fatDir*)&buffer;
+    fatDir *tstStruct = (fatDir*)&buffer;
     
 }
 
