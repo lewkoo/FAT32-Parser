@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "FAT32Controller.h"
 #include "BSParser.h"
+#include "dir.h"
 
 enum FATType{
     FAT16,
@@ -98,31 +99,34 @@ void locateRootDir(fat32BS *boot_sector){
     //buffer = (unsigned char*)boot_sector->BS_SigB+8;
     memset(&buffer,0,sizeof(buffer));
     
-    /* The White paper Way
+    //The White paper Way
      
      uint32_t rootDirCLusterNum = boot_sector->BPB_RootClus;
-    
-    //uint64_t sectorToLoad = getThisFatSecNum(rootDirCLusterNum, boot_sector);
     
     uint64_t RootDirSectors = ((boot_sector->BPB_RootEntCnt * 32) + (boot_sector->BPB_BytesPerSec-1)) / boot_sector->BPB_BytesPerSec;
     uint64_t FistDataSector = boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_NumFATs * boot_sector->BPB_FATSz32) + RootDirSectors;
     
     uint32_t FirstSectorofCluster = ((rootDirCLusterNum-2) * boot_sector->BPB_SecPerClus) + FistDataSector;
-    */
+    
+    
+    uint64_t start_sector = boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_FATSz32 * boot_sector->BPB_NumFATs) + (boot_sector->BPB_RootClus-2)*boot_sector->BPB_SecPerClus;
+    
+    
     
     //the wiki way
     
-    uint64_t first_data_sector = boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_NumFATs * boot_sector->BPB_FATSz32);
+   /* uint64_t first_data_sector = boot_sector->BPB_RsvdSecCnt + (boot_sector->BPB_NumFATs * boot_sector->BPB_FATSz32);
     
     uint64_t root_cluster_32 = boot_sector->BPB_RootClus;
     uint64_t absolute_cluster = (root_cluster_32-2) + first_data_sector;
     
-    uint64_t sector = absolute_cluster+(boot_sector->BPB_RootEntCnt * 32 / boot_sector->BPB_BytesPerSec);
+    //uint64_t sector = absolute_cluster+(boot_sector->BPB_RootEntCnt * 32 / boot_sector->BPB_BytesPerSec);
+    uint64_t sector = (boot_sector->BPB_RootClus)*boot_sector->BPB_SecPerClus + boot_sector->BPB_RsvdSecCnt + boot_sector->BPB_FATSz32*boot_sector->BPB_NumFATs;*/
     
      
     source = fopen(diskImageLocaiton, "r");
     
-    int result = fseek(source, (long)sector, SEEK_SET);
+    int result = fseek(source, (long)FistDataSector*512, SEEK_SET);
     
     //if(result == 0){
         //success
@@ -137,7 +141,7 @@ void locateRootDir(fat32BS *boot_sector){
     n = fread(buffer, 1, BUFFER_SIZE, source);
     }
     
-    fat32BS tstStruct = *(fat32BS*)&buffer;
+    fatDir tstStruct = *(fatDir*)&buffer;
     
 }
 

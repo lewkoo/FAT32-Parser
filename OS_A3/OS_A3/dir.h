@@ -17,7 +17,7 @@
 
 #pragma pack(push)
 #pragma pack(1)
-struct fat32BS_struct {
+struct fatDir_struct {
     char DIR_Name[DIR_NAME_LENGTH];
     uint8_t DIR_Attr;
     uint8_t DIR_NTRes;
@@ -33,6 +33,6 @@ struct fat32BS_struct {
 };
 #pragma pack(pop)
 
-typedef struct fat32BS_struct fat32BS;
+typedef struct fatDir_struct fatDir;
 
 #endif
