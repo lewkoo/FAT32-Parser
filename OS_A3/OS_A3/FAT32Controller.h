@@ -18,8 +18,11 @@ typedef int bool;
 
 void startCL(); //starts the command line interface
 void locateRootDir();
-void printDir(fatDir *dir, unsigned char *buffer);
+void printDir();
 void setCurrDir(uint64_t newDirCluster); //set the current dir based on the cluster number from the FAT
+
+//getters
+unsigned char *getBuffer();
 
 
 //setters
@@ -27,8 +30,10 @@ void setDiskImageLocation(char *diskImageLocaiton);
 void setBootSector(fat32BS *boot_sec);
 
 //helper functions
+void getCommand();
+void cleanInputUp();
 uint8_t validateBS();
-int readSector(uint64_t sectorNum, unsigned char *buffer);
+int readSector(uint64_t sectorNum);
 
 char *processFileName(char* fileName);
 

@@ -30,6 +30,7 @@
 char *vol_ID;
 
 unsigned char *newBuf;
+unsigned char *printBuf;
 
 extern void* memset(); //to suppress the memset warninig.
 
@@ -41,8 +42,9 @@ enum FATType{
 enum Arguments{
     DIR,
     CD,
-    
-}
+    INFO,
+    GET
+};
 
 
 enum FATType fatType;
@@ -52,15 +54,96 @@ uint64_t currDirClusterNum;
 
 
 //for command-line interface
-
+char *line;
+char *origLine;
+char command[20];
+unsigned argumentsCount = 0;
+char **arguments;
 
 
 void startCL(){
     locateRootDir();
     
+    while(1){
+        fprintf(stderr,"\n%s", "> ");
+        
+        getCommand();
+        
+        if(strcmp(command, "cd") == 0){
+            //do cd
+            
+            
+            
+        }else if(strcmp(command, "info") == 0){
+            //do info command
+            staticParseBS(boot_sector);
+            
+        }else if(strcmp(command, "dir") == 0){
+            //do dir command
+            
+            printDir();
+        }else if(strcmp(command, "get") == 0){
+            //do get command
+        }else{
+            fprintf(stderr,"Incorrect command: %s \n Usage: \n -info : prints information about this drive \n -dir : lists the current directory \n -cd 'directory name' : sets current directory to 'directory name' \n -get 'file name' copies the file name to local system \n ",origLine);
+        }
+        
+        cleanInputUp();
+    }
+
     
-    
+
+
 }
+
+void getCommand(){
+    
+    line = malloc(128);
+    origLine = line;
+    
+    fgets(line,128,stdin);
+    
+    
+    sscanf(line,"%20s ", command );
+    
+    line = strchr(line, ' ');
+    
+    argumentsCount = 0;
+    arguments = malloc(sizeof(char *));
+    
+    while (1)
+    {
+        char arg[20];
+        if (line && (sscanf(++line, "%20s", arg) == 1))
+        {
+            arguments[argumentsCount] = malloc(sizeof(char) * 20);
+            strncpy(arguments[argumentsCount], arg, 20);
+            
+            argumentsCount++;
+            
+            arguments = realloc(arguments, sizeof(char *) * argumentsCount + 1);
+            line = strchr(line, ' ');
+        }
+        else {
+            break;
+        }
+    }
+}
+
+void cleanInputUp(){
+    for (int i = 0; i < argumentsCount; i++) {
+        //printf("Argument %i is: %s\n", i, arguments[i]);
+    }
+    
+    for (int i = 0; i < argumentsCount; i++) {
+        free(arguments[i]);
+    }
+    
+    free(arguments);
+    free(origLine);
+}
+
+
 
 uint8_t validateBS(fat32BS *boot_sector){
     
@@ -105,20 +188,20 @@ uint8_t validateBS(fat32BS *boot_sector){
 
 void setCurrDir(uint64_t newDirCluster){
     
-    size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
+    //size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
     //unsigned char buffer[BUFFER_SIZE];
-    newBuf = malloc(BUFFER_SIZE);
+    //newBuf = malloc(BUFFER_SIZE);
     //memset(&newBuf,0,sizeof(newBuf));
     
     uint64_t FirstSectorofCluster = getDataOnClusterNum(newDirCluster, boot_sector);
     
-    currDirClusterNum = FirstSectorofCluster; //setting the curDir to rootDir
+    currDirClusterNum = newDirCluster; //setting the curDir to rootDir
     
     //read the contents of a sector into the buffer
-    readSector(currDirClusterNum, newBuf);
+    readSector(FirstSectorofCluster);
     //processing
     fatDir *tstStruct = (fatDir*)&newBuf[0];
-    printDir(tstStruct, newBuf);
+    //printDir(tstStruct);
     
     
     
@@ -129,11 +212,8 @@ void setCurrDir(uint64_t newDirCluster){
 
 void locateRootDir(){
     validateBsAndImageLoc();
-    
-  
-    fatEntry *tempFatEntry;
-    size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
-    unsigned char buffer[BUFFER_SIZE];
+    //size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
+    //unsigned char buffer[BUFFER_SIZE];
     //memset(&buffer,0,sizeof(buffer));
     
     //The White paper Way
@@ -141,12 +221,12 @@ void locateRootDir(){
     uint32_t rootDirCLusterNum = boot_sector->BPB_RootClus;
     uint64_t FirstSectorofCluster = getDataOnClusterNum(rootDirCLusterNum, boot_sector);
     
-    currDirClusterNum = FirstSectorofCluster; //setting the curDir to rootDir
+    currDirClusterNum = rootDirCLusterNum; //setting the curDir to rootDir
     
     //read the contents of a sector into the buffer
-    readSector(currDirClusterNum, buffer);
+    readSector(FirstSectorofCluster);
     //processing
-    fatDir *tstStruct = (fatDir*)&buffer[0];
+    fatDir *tstStruct = (fatDir*)&newBuf[0];
     
     bool result = verifyRootDir(tstStruct);
     
@@ -159,7 +239,7 @@ void locateRootDir(){
     vol_ID[DIR_NAME_LENGTH] = '\0';
 
     //move to dir command
-    printDir(tstStruct, buffer);
+    //printDir(tstStruct);
     
     uint32_t nextClusterNum = checkForNextCluster(rootDirCLusterNum, boot_sector);
     
@@ -195,12 +275,12 @@ void locateRootDir(){
 }*/
 
 
-int readSector(uint64_t sectorNum, unsigned char *buffer){
+int readSector(uint64_t sectorNum){
     int returnVal = 0;
     size_t n = 0; // number of bytes read
     FILE *source;
     size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
-
+    newBuf = malloc(BUFFER_SIZE);
     
     source = fopen(diskImageLocaiton, "r");
     
@@ -214,7 +294,7 @@ int readSector(uint64_t sectorNum, unsigned char *buffer){
     
     
     if(source){
-        n = fread(buffer, 1, BUFFER_SIZE, source);
+        n = fread(newBuf, 1, BUFFER_SIZE, source);
     }
 
     if(n != BUFFER_SIZE){
@@ -222,14 +302,28 @@ int readSector(uint64_t sectorNum, unsigned char *buffer){
     }
     
     fclose(source);
+    //free(newBuf);
     
     return returnVal;
 }
 
-void printDir(fatDir *dir, unsigned char *buffer){
+void printDir(){
     
-    fatDir *tstStruct;
     int i = 0;
+    
+    setCurrDir(currDirClusterNum); //load content of dir cluster into memory
+    
+    fatDir *dir = (fatDir*)&newBuf[0];
+    
+    bool result = verifyRootDir(dir);
+    
+    if(result != TRUE){
+        fprintf(stderr,"%s\n", "Root dir corrupted");
+    }
+
+    
+    //size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
+    //printBuf = malloc(BUFFER_SIZE); //consider using a different buffer for printing
     
     fprintf(stderr,"\n%s\n", "DIRECTORY LISTING");
     fprintf(stderr,"%s: %s\n", "VOL_ID", vol_ID);
@@ -240,27 +334,27 @@ void printDir(fatDir *dir, unsigned char *buffer){
     }
     
     for(; i < 16*sizeof(fatDir); i+=sizeof(fatDir)){
-        tstStruct = (fatDir*)&buffer[i];
+        dir = (fatDir*)&newBuf[i];
         
-        if(tstStruct->DIR_Name[0] == DIR_FREE_STOP){
+        if(dir->DIR_Name[0] == DIR_FREE_STOP){
             break;
         }
         
-        if( (tstStruct->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY){
+        if( (dir->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY){
             
-            char *temp = tstStruct->DIR_Name;
+            char *temp = dir->DIR_Name;
             
             temp[DIR_NAME_LENGTH] = '\0';
             
-            fprintf(stderr,"<%s>        %d\n",temp, tstStruct->DIR_FileSize);
-        }else if( (tstStruct->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN){
-            char *temp = tstStruct->DIR_Name;
+            fprintf(stderr,"<%s>        %d\n",temp, dir->DIR_FileSize);
+        }else if( (dir->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN){
+            char *temp = dir->DIR_Name;
             
             temp = processFileName(temp);
             
             temp[DIR_NAME_LENGTH] = '\0';
             
-            fprintf(stderr,"%s        %d\n",temp, (tstStruct->DIR_FileSize/1024));
+            fprintf(stderr,"%s        %d\n",temp, (dir->DIR_FileSize/1024));
         }
         
         
@@ -363,6 +457,10 @@ bool isRoot(fatDir *toCheck){
     }else{
         return FALSE;
     }
+}
+
+unsigned char *getBuffer(){
+    return newBuf;
 }
 
 

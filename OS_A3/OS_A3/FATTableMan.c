@@ -18,13 +18,11 @@ uint32_t checkForNextCluster(uint32_t clusterNumber, fat32BS *boot_sector){
     fatEntry *tempFatEntry;
     uint32_t result = EndOfClusterResponce;
     
-    fatTableBuf = malloc(boot_sector->BPB_BytesPerSec);
+    
     uint64_t thisFatSecNum = getThisFatSecNum(clusterNumber, boot_sector);
-    
     uint64_t fatEntOffset = getFatEntOffset(clusterNumber, boot_sector);
-    
-    readSector(thisFatSecNum, fatTableBuf);
-    
+    readSector(thisFatSecNum);
+    fatTableBuf = getBuffer();
     tempFatEntry = (fatEntry*)&fatTableBuf[fatEntOffset];
     
     
@@ -38,7 +36,7 @@ uint32_t checkForNextCluster(uint32_t clusterNumber, fat32BS *boot_sector){
         result = (uint32_t)tempFatEntry->value;
         
     }
-        
+    
     return result;
 
     

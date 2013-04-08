@@ -37,7 +37,7 @@ int main(int argc, const char * argv[])
         
         
         printf("\nInitializing FAT 32 controller\n");
-        staticParseBS(boot_sector);
+        //staticParseBS(boot_sector);
         
         startCL(boot_sector);
                 
