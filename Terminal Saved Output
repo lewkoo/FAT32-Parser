@@ -1,0 +1,105 @@
+Last login: Mon Apr  8 12:09:16 on ttys003
+wpa-2-122:~ levko$ man mount
+wpa-2-122:~ levko$ stty -F /dev/disk1s1
+stty: illegal option -- -F
+usage: stty [-a|-e|-g] [-f file] [options]
+wpa-2-122:~ levko$ stty -F /dev/disk1s1 -a
+stty: illegal option -- -F
+usage: stty [-a|-e|-g] [-f file] [options]
+wpa-2-122:~ levko$ stty --file /dev/disk1s1 -a
+stty: illegal option -- --file
+usage: stty [-a|-e|-g] [-f file] [options]
+wpa-2-122:~ levko$ stty --f /dev/disk1s1 -a
+stty: illegal option -- --f
+usage: stty [-a|-e|-g] [-f file] [options]
+wpa-2-122:~ levko$ stty -f /dev/disk1s1 -a
+stty: /dev/disk1s1: Permission denied
+wpa-2-122:~ levko$ cd /dev/disk1s1
+-bash: cd: /dev/disk1s1: Not a directory
+wpa-2-122:~ levko$ cd /dev
+wpa-2-122:dev levko$ ls disk2*
+disk2	disk2s1
+wpa-2-122:dev levko$ man 2 open
+wpa-2-122:dev levko$ man perror
+wpa-2-122:dev levko$ cd /dev
+wpa-2-122:dev levko$ 
+wpa-2-122:dev levko$ ls -al disk2*
+brw-r-----  1 root  operator    1,   5  8 Apr 14:47 disk2
+brw-r-----  1 root  operator    1,   7  8 Apr 14:47 disk2s1
+wpa-2-122:dev levko$ groups
+staff everyone _appstore localaccounts _appserverusr admin _appserveradm _lpadmin _lpoperator _developer com.apple.access_screensharing
+wpa-2-122:dev levko$ cd /etc/
+wpa-2-122:etc levko$ ls
+afpovertcp.cfg				nanorc
+aliases					networks
+aliases.db				newsyslog.conf
+apache2					newsyslog.d
+asl.conf				nfs.conf
+authorization				notify.conf
+auto_home				ntp-restrict.conf
+auto_master				ntp.conf
+autofs.conf				ntp_opendirectory.conf
+bashrc					openldap
+bind.keys				pam.d
+com.apple.screensharing.agent.launchd	passwd
+csh.cshrc				paths
+csh.login				paths.d
+csh.logout				periodic
+cups					pf.anchors
+defaults				pf.conf
+dnsextd.conf				pf.os
+efax.rc					php-fpm.conf.default
+emond.d					php.ini.default
+find.codes				postfix
+fstab.hd				ppp
+ftpd.conf				profile
+ftpd.conf.default			protocols
+ftpusers				racoon
+gettytab				raddb
+group					rc.common
+hostconfig				rc.imaging
+hosts					rc.netboot
+hosts.equiv				resolv.conf
+ip6addrctl.conf				rmtab
+irbrc					rpc
+kern_loader.conf			rtadvd.conf
+krb5.keytab				security
+localtime				services
+locate.rc				sharingNames.plist
+mach_init.d				shells
+mach_init_per_login_session.d		snmp
+mach_init_per_user.d			ssh_config
+mail.rc					sshd_config
+man.conf				sudoers
+manpaths				syslog.conf
+manpaths.d				ttys
+master.passwd				xtab
+moduli					zshenv
+named.conf
+wpa-2-122:etc levko$ find . | grep udev
+find: ./cups/certs: Permission denied
+find: ./raddb/certs: Permission denied
+find: ./raddb/modules: Permission denied
+find: ./raddb/sites-available: Permission denied
+find: ./raddb/sites-enabled: Permission denied
+find: ./raddb/sql: Permission denied
+wpa-2-122:etc levko$ cd /dev
+wpa-2-122:dev levko$ s
+-bash: s: command not found
+wpa-2-122:dev levko$ su
+Password:
+su: Sorry
+wpa-2-122:dev levko$ sudo bash
+Password:
+bash-3.2# cd /de
+bash: cd: /de: No such file or directory
+bash-3.2# cd /dev
+bash-3.2# chmod a+r disk2*
+bash-3.2# ls -al disk2*
+brw-r--r--  1 root  operator    1,   5  8 Apr 14:47 disk2
+brw-r--r--  1 root  operator    1,   7  8 Apr 14:47 disk2s1
+bash-3.2# chmod a+r disk2*
+bash-3.2# ls -al disk2*
+brw-r--r--  1 root  operator    1,   5  8 Apr 15:02 disk2
+brw-r--r--  1 root  operator    1,   7  8 Apr 15:02 disk2s1
+bash-3.2# 

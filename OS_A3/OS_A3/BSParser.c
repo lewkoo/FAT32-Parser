@@ -7,34 +7,39 @@
 //
 
 #include <stdio.h>
+#include <fcntl.h>
 #include "BSParser.h"
 #include "fat32.h"
+#include <unistd.h>
 
 void staticParseBS(fat32BS *boot_sector);
 
 fat32BS* parseAndReturnBS(char *diskImageLocaiton){
     size_t BUFFER_SIZE = sizeof(fat32BS); //size of the BPB (NOTE: works ONLY with FAT32 (not with FAT12 or FAT16)
-    FILE *source;
+    int source;
     FILE *destination;
     int n;
     int count = 0;
     
     fat32BS *boot_sector = NULL;
     
+    //system("stty -f /dev/rdisk1s1 115200 cs8 -cstopb -parity -icanon min 1 time 1");
     
     
     unsigned char *buffer[BUFFER_SIZE];
     memset(&buffer,0,sizeof(buffer));
     
-    source = fopen(diskImageLocaiton, "r"); //TODO: ask Jim about this bit or figure this out
+    source = open(diskImageLocaiton, O_RDONLY); //TODO: ask Jim about this bit or figure this out
     //if you just pass it the argument, you end up reading the wrong file...
+    if (source == -1)
+        perror("cannot open: ");
     
     if (source) {
         
         //output testing
         //destination = fopen("/Users/lewkoo/Desktop/output", "w");
         
-        n = fread(buffer, 1, BUFFER_SIZE, source);
+        n = read(source, &buffer, BUFFER_SIZE);
         count += n;
         printf("BS parser read %d bytes read from diskimage.\n\n", count);
         
@@ -52,23 +57,27 @@ fat32BS* parseAndReturnBS(char *diskImageLocaiton){
     
     //checking signature bytes
     
-    uint8_t result = checkSignatureBytes(boot_sector);
+    uint8_t result;
+    
+    result = checkSignatureBytes(boot_sector);
     
     //checking if FAT32
     
     result = checkFAT16Descriptors(boot_sector);
     
+    //result = 1;
+    
     //static parsing function here
     
     if(result == 1){
-        //staticParseBS(boot_sector);
+        staticParseBS(boot_sector);
     }else{
         fprintf(stderr,"%s\n\n", "Boot sector did not parse because of corrupted Boot Signature Byte");
     }
     
     
     
-    fclose(source);
+    close(source);
     
     return boot_sector;
 
@@ -116,7 +125,9 @@ void parseBS(char *diskImageLocaiton){
 
     //checking signature bytes
     
-    uint8_t result = checkSignatureBytes(boot_sector);
+    uint8_t result;
+    
+    //uint8_t result = checkSignatureBytes(boot_sector);
     
     //checking if FAT32
     
@@ -140,10 +151,10 @@ void parseBS(char *diskImageLocaiton){
 
 uint8_t checkSignatureBytes(fat32BS *boot_sector){
     if(boot_sector->BS_BootSig == 0x29){
-        //fprintf(stderr,"%s\n", "Signature byte is okay.");
+        fprintf(stderr,"%s\n", "Signature byte is okay.");
         return 1;
     }else{
-        //fprintf(stderr,"%s\n", "Signature byte is not set. Sorry.");
+        fprintf(stderr,"%s\n", "Signature byte is not set. Sorry.");
         return 0;
     }
 }
