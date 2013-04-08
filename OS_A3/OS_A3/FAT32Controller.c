@@ -73,9 +73,12 @@ void startCL(){
             //do cd
             
             //get the dir cluster number
+            uint64_t newDirClusterNumber = checkIfDirExists(arguments[0]);
             //after that it is straightforward, just
             //set currDirClusterNum to that number and
+            setCurrDir(newDirClusterNumber);
             //call printDir();
+            printDir();
             
             
             
@@ -195,6 +198,11 @@ uint8_t validateBS(fat32BS *boot_sector){
 }
 
 void setCurrDir(uint64_t newDirCluster){
+    
+    if(newDirCluster == 0){
+        newDirCluster = 2;
+    }
+    
     uint64_t FirstSectorofCluster = getDataOnClusterNum(newDirCluster, boot_sector); //get the first cluster
     currDirClusterNum = newDirCluster; //updating the current dir
     //read the contents of a sector into the buffer
@@ -248,24 +256,6 @@ void locateRootDir(){
     //setCurrDir(5);
     //setCurrDir(2);
 }
-
-/*int readFatTableEntry(uint64_t sectorNum, uint64_t fatEntOffset, unsigned char *buffer){
-    int returnVal = 0;
-    size_t n = 0; // number of bytes read
-    FILE *source;
-    size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
-    
-    
-    source = fopen(diskImageLocaiton, "r");
-    
-    
-    
-    
-    fclose(source);
-    
-}*/
-
-
 int readSector(uint64_t sectorNum){
     int returnVal = 0;
     size_t n = 0; // number of bytes read
@@ -297,7 +287,6 @@ int readSector(uint64_t sectorNum){
     
     return returnVal;
 }
-
 void printDir(){
     
     int i = 0;
@@ -306,12 +295,6 @@ void printDir(){
     
     fatDir *dir = (fatDir*)&newBuf[0];
     
-    bool result = verifyRootDir(dir);
-    
-    if(result != TRUE){
-        fprintf(stderr,"%s\n", "Root dir corrupted");
-    }
-
     
     //size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
     //printBuf = malloc(BUFFER_SIZE); //consider using a different buffer for printing
@@ -356,7 +339,6 @@ void printDir(){
 
     
 }
-
 bool verifyRootDir(fatDir *rootDir){
     if( (rootDir->DIR_Attr & ATTR_VOLUME_ID) != ATTR_VOLUME_ID){
         return FALSE;
@@ -364,17 +346,12 @@ bool verifyRootDir(fatDir *rootDir){
         return TRUE;
     }
 }
-
-
-
 void setDiskImageLocation(char *diskImageLoc){
     diskImageLocaiton = diskImageLoc;
 }
-
 void setBootSector(fat32BS *boot_sec){
     boot_sector = boot_sec;
 }
-
 bool validateDiskImageLocation(){
     if(diskImageLocaiton != NULL){
         return TRUE;
@@ -389,7 +366,6 @@ bool validateBootSector(){
         return FALSE;
     }
 }
-
 void validateBsAndImageLoc(void) {
     bool testResult = FALSE;
     
@@ -407,13 +383,9 @@ void validateBsAndImageLoc(void) {
         //break;
     }
 }
-
-
-
 //takes the FAT32 formatted file name
 //removes whitespaces, adds a dot between
 //filename and extension
-
 char *processFileName(char *fileName){
     
     char *output = fileName;
@@ -442,6 +414,28 @@ char *processFileName(char *fileName){
     return output;
 }
 
+char *processDirName(char *dirName){
+    char *output = dirName;
+    int j = 0;
+    int i = 0;
+    for(; i < strlen(dirName); i++,j++){
+        if(dirName[i]!=' '){
+            output[j] = dirName[i];
+        }
+        else{
+            j--;
+            
+        }
+        
+        
+        
+    }
+    output[j-1]='\0';
+    
+    return output;
+
+}
+
 bool isRoot(fatDir *toCheck){
     if( (toCheck->DIR_Attr & ATTR_VOLUME_ID) != ATTR_VOLUME_ID){
         return TRUE;
@@ -449,10 +443,65 @@ bool isRoot(fatDir *toCheck){
         return FALSE;
     }
 }
-
 unsigned char *getBuffer(){
     return newBuf;
 }
 
+//funciton checks the current dir for a subdirectory existence
+//returns subdir cluster number if found
+//if not found returns -1 (FOLDER_NOT_FOUND)
+uint64_t checkIfDirExists(char *dirName){
+    int i = 0;
+    uint64_t result = FOLDER_NOT_FOUND;
+    
+    //null terminate
+    dirName[sizeof(dirName)+1] = '\0';
+    
+    convertToUpperCase(dirName);
+    
+    setCurrDir(currDirClusterNum); //loads dir contents
+    
+    fatDir *dir = (fatDir*)&newBuf[0];
+    
+    for(; i < 16*sizeof(fatDir); i+=sizeof(fatDir)){
+        dir = (fatDir*)&newBuf[i];
+        
+        if(dir->DIR_Name[0] == DIR_FREE_STOP){
+            //do nothing
+            return result;
+        }
+        
+        if( (dir->DIR_Attr & ATTR_DIRECTORY) == ATTR_DIRECTORY){
+            
+            char *temp = dir->DIR_Name;
+            
+            //remove whilespaces in temp
+            processDirName(temp);
+            dirName[sizeof(dirName)+1] = '\0';
+            
+            //temp[DIR_NAME_LENGTH] = '\0';
+            
+            if(strcmp(dirName, temp) == 0){
+                result = dir->DIR_FstClusLo;
+                return result; //returns the first found dir
+            }
+            
+        }else{
+            
+        }
+        
+        
+    }
+    
+    return result;
+}
 
+void convertToUpperCase(char *sPtr){
+    while(*sPtr != '\0')
+    {
+        if (islower(*sPtr))
+            *sPtr = toupper(*sPtr);
+        sPtr++;
+    }
+}
 
