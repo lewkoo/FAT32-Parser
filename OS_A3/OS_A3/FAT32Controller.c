@@ -72,6 +72,12 @@ void startCL(){
         if(strcmp(command, "cd") == 0){
             //do cd
             
+            //get the dir cluster number
+            //after that it is straightforward, just
+            //set currDirClusterNum to that number and
+            //call printDir();
+            
+            
             
             
         }else if(strcmp(command, "info") == 0){
@@ -87,7 +93,7 @@ void startCL(){
             exit(1);
         }
         else{
-            fprintf(stderr,"Incorrect command: %s \n Usage: \n -info : prints information about this drive \n -dir : lists the current directory \n -cd 'directory name' : sets current directory to 'directory name' \n -get 'file name' copies the file name to local system \n -quit : quites the application \n ",origLine);
+            fprintf(stderr,"Incorrect command: %s \n Usage: \n -info : prints information about this drive \n -dir : lists the current directory \n -cd 'directory name' : sets current directory to 'directory name' \n -get 'file name' copies the file name to local system \n -quit : quits the application \n ",origLine);
         }
         
         cleanInputUp();
