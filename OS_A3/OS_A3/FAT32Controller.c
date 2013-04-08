@@ -428,14 +428,16 @@ char *processDirName(char *dirName){
             output[j] = dirName[i];
         }
         else{
-            j--;
-            
+            if(dirName[i] != '.'){
+                j--;
+            }
         }
         
         
         
     }
-    output[j-1]='\0';
+    
+    output[j]='\0';
     
     return output;
 
@@ -481,8 +483,10 @@ uint64_t checkIfDirExists(char *dirName){
             char *temp = dir->DIR_Name;
             
             //remove whilespaces in temp
+            dirName[sizeof(dirName)] = '\0';
+            temp[BS_VolLab_LENGTH-1] = '\0';
             processDirName(temp);
-            dirName[sizeof(dirName)+1] = '\0';
+            
             
             //temp[DIR_NAME_LENGTH] = '\0';
             
