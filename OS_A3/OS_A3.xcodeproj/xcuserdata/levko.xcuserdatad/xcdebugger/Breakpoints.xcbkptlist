@@ -21,11 +21,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "OS_A3/BSParser.c"
-         timestampString = "387143629.155182"
+         timestampString = "387144827.792113"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "134"
-         endingLineNumber = "134"
+         startingLineNumber = "132"
+         endingLineNumber = "132"
          landmarkName = "parseBS()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -40,32 +40,6 @@
          startingLineNumber = "25"
          endingLineNumber = "25"
          landmarkName = "main()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "OS_A3/BSParser.c"
-         timestampString = "387143629.155182"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "60"
-         endingLineNumber = "60"
-         landmarkName = "parseAndReturnBS()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "OS_A3/BSParser.c"
-         timestampString = "387143532.735644"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "18"
-         endingLineNumber = "18"
-         landmarkName = "parseAndReturnBS()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>
