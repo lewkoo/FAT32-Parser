@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include "FAT32Controller.h"
+#include "FATTableMan.h"
 #include "BSParser.h"
 #include "dir.h"
 #include "Util.h"
@@ -30,7 +31,6 @@ char *vol_ID;
 
 unsigned char *newBuf;
 
-
 extern void* memset(); //to suppress the memset warninig.
 
 enum FATType{
@@ -38,14 +38,27 @@ enum FATType{
     FAT32
 }FATType;
 
+enum Arguments{
+    DIR,
+    CD,
+    
+}
+
+
 enum FATType fatType;
 char *diskImageLocaiton = NULL;
 fat32BS *boot_sector = NULL;
 uint64_t currDirClusterNum;
 
 
+//for command-line interface
+
+
+
 void startCL(){
     locateRootDir();
+    
+    
     
 }
 
@@ -118,6 +131,7 @@ void locateRootDir(){
     validateBsAndImageLoc();
     
   
+    fatEntry *tempFatEntry;
     size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
     unsigned char buffer[BUFFER_SIZE];
     //memset(&buffer,0,sizeof(buffer));
@@ -147,13 +161,41 @@ void locateRootDir(){
     //move to dir command
     printDir(tstStruct, buffer);
     
-    setCurrDir(5);
-    setCurrDir(2);
-    setCurrDir(5);
-    setCurrDir(2);
+    uint32_t nextClusterNum = checkForNextCluster(rootDirCLusterNum, boot_sector);
+    
+    if(nextClusterNum == EndOfClusterResponce){
+        //do nothing
+    }else{
+        //parse next cluster cluster
+    }
+    
+    
+    
+    //changes current directory given a cluster number
+    //setCurrDir(5);
+    //setCurrDir(2);
+    //setCurrDir(5);
+    //setCurrDir(2);
 }
 
-int readSector(uint64_t clusterNum, unsigned char *buffer){
+/*int readFatTableEntry(uint64_t sectorNum, uint64_t fatEntOffset, unsigned char *buffer){
+    int returnVal = 0;
+    size_t n = 0; // number of bytes read
+    FILE *source;
+    size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
+    
+    
+    source = fopen(diskImageLocaiton, "r");
+    
+    
+    
+    
+    fclose(source);
+    
+}*/
+
+
+int readSector(uint64_t sectorNum, unsigned char *buffer){
     int returnVal = 0;
     size_t n = 0; // number of bytes read
     FILE *source;
@@ -162,7 +204,7 @@ int readSector(uint64_t clusterNum, unsigned char *buffer){
     
     source = fopen(diskImageLocaiton, "r");
     
-    int result = fseek(source, (long)clusterNum*boot_sector->BPB_BytesPerSec, SEEK_SET);
+    int result = fseek(source, (long)sectorNum*boot_sector->BPB_BytesPerSec, SEEK_SET);
     
     if(result == 0){
         //success
@@ -178,6 +220,8 @@ int readSector(uint64_t clusterNum, unsigned char *buffer){
     if(n != BUFFER_SIZE){
         returnVal = 1;
     }
+    
+    fclose(source);
     
     return returnVal;
 }

@@ -28,7 +28,7 @@ void setBootSector(fat32BS *boot_sec);
 
 //helper functions
 uint8_t validateBS();
-int readSector(uint64_t clusterNum, unsigned char *buffer);
+int readSector(uint64_t sectorNum, unsigned char *buffer);
 
 char *processFileName(char* fileName);
 
