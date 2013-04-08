@@ -74,12 +74,17 @@ void startCL(){
             
             //get the dir cluster number
             uint64_t newDirClusterNumber = checkIfDirExists(arguments[0]);
+            
+            if(newDirClusterNumber == FOLDER_NOT_FOUND){
+                fprintf(stderr," folder '%s' not found. sorry. verify your spelling and try again. \n", arguments[0]);
+            }else{
+            
             //after that it is straightforward, just
             //set currDirClusterNum to that number and
             setCurrDir(newDirClusterNumber);
             //call printDir();
             printDir();
-            
+            }
             
             
             
