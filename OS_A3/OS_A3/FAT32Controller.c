@@ -77,15 +77,17 @@ void startCL(){
         }else if(strcmp(command, "info") == 0){
             //do info command
             staticParseBS(boot_sector);
-            
         }else if(strcmp(command, "dir") == 0){
             //do dir command
-            
             printDir();
         }else if(strcmp(command, "get") == 0){
             //do get command
-        }else{
-            fprintf(stderr,"Incorrect command: %s \n Usage: \n -info : prints information about this drive \n -dir : lists the current directory \n -cd 'directory name' : sets current directory to 'directory name' \n -get 'file name' copies the file name to local system \n ",origLine);
+            
+        }else if(strcmp(command, "quit") == 0){
+            exit(1);
+        }
+        else{
+            fprintf(stderr,"Incorrect command: %s \n Usage: \n -info : prints information about this drive \n -dir : lists the current directory \n -cd 'directory name' : sets current directory to 'directory name' \n -get 'file name' copies the file name to local system \n -quit : quites the application \n ",origLine);
         }
         
         cleanInputUp();
@@ -187,27 +189,10 @@ uint8_t validateBS(fat32BS *boot_sector){
 }
 
 void setCurrDir(uint64_t newDirCluster){
-    
-    //size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
-    //unsigned char buffer[BUFFER_SIZE];
-    //newBuf = malloc(BUFFER_SIZE);
-    //memset(&newBuf,0,sizeof(newBuf));
-    
-    uint64_t FirstSectorofCluster = getDataOnClusterNum(newDirCluster, boot_sector);
-    
-    currDirClusterNum = newDirCluster; //setting the curDir to rootDir
-    
+    uint64_t FirstSectorofCluster = getDataOnClusterNum(newDirCluster, boot_sector); //get the first cluster
+    currDirClusterNum = newDirCluster; //updating the current dir
     //read the contents of a sector into the buffer
     readSector(FirstSectorofCluster);
-    //processing
-    fatDir *tstStruct = (fatDir*)&newBuf[0];
-    //printDir(tstStruct);
-    
-    
-    
-    
-
-    
 }
 
 void locateRootDir(){
