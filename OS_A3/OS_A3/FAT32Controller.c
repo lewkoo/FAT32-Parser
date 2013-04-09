@@ -108,7 +108,7 @@ void startCL(){
             
             uint64_t newFileClusterNumber = checkIfFileExists(arguments[0]);
             
-            uint64_t FirstSectorOfCluster = getDataOnClusterNum(newFileClusterNumber, boot_sector);
+            //uint64_t FirstSectorOfCluster = getDataOnClusterNum(newFileClusterNumber, boot_sector);
             
             if(newFileClusterNumber == FILE_NOT_FOUND){
                 fprintf(stderr," file '%s' not found. sorry. verify your spelling and try again. \n", arguments[0]);
@@ -183,8 +183,6 @@ void cleanInputUp(){
     free(arguments);
     free(origLine);
 }
-
-
 
 uint8_t validateBS(fat32BS *boot_sector){
     
@@ -298,6 +296,8 @@ int readSector(uint64_t sectorNum){
     source = fopen(diskImageLocaiton, "r");
     
     int result = fseek(source, (long)sectorNum*boot_sector->BPB_BytesPerSec, SEEK_SET);
+    
+    int test = ftell(source);
     
     if(result == 0){
         //success
@@ -581,13 +581,13 @@ uint64_t checkIfFileExists(char *fileName){
             //remove whilespaces in temp
             //fileName[sizeof(fileName)] = '\0';
             //temp[BS_VolLab_LENGTH-1] = '\0';
-            //processFileName(temp);
+            processFileName(temp);
             
             
             temp[DIR_NAME_LENGTH] = '\0';
             
             if(strcmp(fileName, temp) == 0){
-                if(dir->DIR_FstClusHi != 0x00){
+                
                     
                     //mask out the first 4 bits of the high word
                     uint16_t tempValue = (dir->DIR_FstClusHi);
@@ -596,10 +596,9 @@ uint64_t checkIfFileExists(char *fileName){
                     
                     result = (((uint32_t) tempValue)<<16);
                     result = result | dir->DIR_FstClusLo;                    
-                    
-                }else{
-                    result = dir->DIR_FstClusLo;
-                }
+                    return result; //returns the first found dir
+            }
+    
                 
                 
                 
@@ -607,13 +606,9 @@ uint64_t checkIfFileExists(char *fileName){
                 
                 
                 
-                return result; //returns the first found dir
+               
             }
             
-        }else{
-            
-        }
-        
         
     }
     
@@ -634,7 +629,8 @@ void getFile(){
     int clusterCount = 0;
     
     
-    //getFileHelper();
+    
+    getFileHelper(output); //dump everything in buffer to a cluster
 
     //fetch in a new cluster, if present, set it as current
     nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
@@ -642,13 +638,13 @@ void getFile(){
     
     while(nextClusterNum != EndOfClusterResponce){
         currDirClusterNum = nextClusterNum;
-        //getFileHelper();
+        getFileHelper(output);
         nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
         
         clusterCount++;
-        //fprintf(stderr," %d ", clusterCount);
         
     }
+    fprintf(stderr," %d ", clusterCount);
     
     
     //end
@@ -659,6 +655,22 @@ void getFile(){
    
     
 }
+
+void getFileHelper(FILE* output){
+    
+    size_t n = 0;
+    size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec*BYTE;
+    
+    uint64_t FirstSectorOfCluster = getDataOnClusterNum(currDirClusterNum, boot_sector);
+    
+    readSector(FirstSectorOfCluster);
+    
+    n = fwrite(newBuf, 1, BUFFER_SIZE, output);
+    
+    //fprintf(stderr, "\nBytes written: %d", n);
+    
+}
+
 
 static char* call_getcwd ()
 {

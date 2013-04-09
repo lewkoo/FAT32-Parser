@@ -39,6 +39,7 @@ void setDiskImageLocation(char *diskImageLocaiton);
 void setBootSector(fat32BS *boot_sec);
 
 //helper functions
+void getFileHelper(FILE* output);
 static char* call_getcwd();
 void printDirHelper();
 void getCommand();

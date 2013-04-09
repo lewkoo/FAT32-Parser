@@ -63,6 +63,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "/dev/disk3s1"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "/Users/lewkoo/Dropbox/Third\ year/COMP\ 3430\ -\ Operating\ Systems/Assignment\ 3/diskimage"
             isEnabled = "NO">
          </CommandLineArgument>
