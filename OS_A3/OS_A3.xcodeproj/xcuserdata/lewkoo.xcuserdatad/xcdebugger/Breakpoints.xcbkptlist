@@ -8,11 +8,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "OS_A3/FAT32Controller.c"
-         timestampString = "387087972.30458"
+         timestampString = "387176114.249351"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "212"
-         endingLineNumber = "212"
+         startingLineNumber = "234"
+         endingLineNumber = "234"
          landmarkName = "setCurrDir()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -21,11 +21,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "OS_A3/FAT32Controller.c"
-         timestampString = "387087972.30458"
+         timestampString = "387176114.249351"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "95"
-         endingLineNumber = "95"
+         startingLineNumber = "102"
+         endingLineNumber = "102"
          landmarkName = "startCL()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -34,11 +34,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "OS_A3/FAT32Controller.c"
-         timestampString = "387086278.802295"
+         timestampString = "387176114.249351"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "72"
-         endingLineNumber = "72"
+         startingLineNumber = "79"
+         endingLineNumber = "79"
          landmarkName = "startCL()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -47,11 +47,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "OS_A3/FAT32Controller.c"
-         timestampString = "387153472.563749"
+         timestampString = "387176114.249351"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "461"
-         endingLineNumber = "461"
+         startingLineNumber = "501"
+         endingLineNumber = "501"
          landmarkName = "checkIfDirExists()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -60,11 +60,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "OS_A3/FAT32Controller.c"
-         timestampString = "387151320.636399"
+         timestampString = "387176114.249351"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "76"
-         endingLineNumber = "76"
+         startingLineNumber = "83"
+         endingLineNumber = "83"
          landmarkName = "startCL()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -73,12 +73,246 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "OS_A3/FAT32Controller.c"
-         timestampString = "387153472.563749"
+         timestampString = "387176114.249351"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "484"
-         endingLineNumber = "484"
+         startingLineNumber = "524"
+         endingLineNumber = "524"
          landmarkName = "checkIfDirExists()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "330"
+         endingLineNumber = "330"
+         landmarkName = "printDir()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "359"
+         endingLineNumber = "359"
+         landmarkName = "printDirHelper()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "375"
+         endingLineNumber = "375"
+         landmarkName = "printDirHelper()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "369"
+         endingLineNumber = "369"
+         landmarkName = "printDirHelper()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "378"
+         endingLineNumber = "378"
+         landmarkName = "printDirHelper()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "552"
+         endingLineNumber = "552"
+         landmarkName = "checkIfFileExists()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "564"
+         endingLineNumber = "564"
+         landmarkName = "checkIfFileExists()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "16"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "579"
+         endingLineNumber = "579"
+         landmarkName = "checkIfFileExists()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "601"
+         endingLineNumber = "601"
+         landmarkName = "checkIfFileExists()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "582"
+         endingLineNumber = "582"
+         landmarkName = "checkIfFileExists()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "109"
+         endingLineNumber = "109"
+         landmarkName = "startCL()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "588"
+         endingLineNumber = "588"
+         landmarkName = "checkIfFileExists()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "1"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FATTableMan.c"
+         timestampString = "387172226.843291"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "19"
+         endingLineNumber = "19"
+         landmarkName = "checkForNextCluster()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FATTableMan.c"
+         timestampString = "387173220.615303"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "24"
+         endingLineNumber = "24"
+         landmarkName = "checkForNextCluster()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "253"
+         endingLineNumber = "253"
+         landmarkName = "locateRootDir()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "634"
+         endingLineNumber = "634"
+         landmarkName = "getFile()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "No"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FAT32Controller.c"
+         timestampString = "387176114.249351"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "241"
+         endingLineNumber = "241"
+         landmarkName = "locateRootDir()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "OS_A3/FATTableMan.c"
+         timestampString = "387177094.117371"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "41"
+         endingLineNumber = "41"
+         landmarkName = "checkForNextCluster()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

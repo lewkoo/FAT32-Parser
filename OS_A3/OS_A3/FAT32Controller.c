@@ -12,6 +12,9 @@
 #include "BSParser.h"
 #include "dir.h"
 #include "Util.h"
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
 
 #define ATTR_READ_ONLY 0x01
 #define ATTR_HIDDEN    0x02
@@ -20,10 +23,14 @@
 #define ATTR_DIRECTORY 0x10
 #define ATTR_ARCHIVE   0x20
 
+#define HIGH_WORD_MASK 0xF0
+
 //DIR_Name constants
 
 #define DIR_FREE_KEEP_GOING 0xE5
 #define DIR_FREE_STOP       0x00
+#define BYTE    8
+#define OUTPUTFILE  "/output"
 
 //volume ID array
 
@@ -32,7 +39,7 @@ char *vol_ID;
 unsigned char *newBuf;
 unsigned char *printBuf;
 
-extern void* memset(); //to suppress the memset warninig.
+//extern void* memset(); //to suppress the memset warninig.
 
 enum FATType{
     FAT16,
@@ -96,6 +103,19 @@ void startCL(){
             printDir();
         }else if(strcmp(command, "get") == 0){
             //do get command
+            
+            uint64_t newFileClusterNumber = checkIfFileExists(arguments[0]);
+            
+            uint64_t FirstSectorOfCluster = getDataOnClusterNum(newFileClusterNumber, boot_sector);
+            
+            if(newFileClusterNumber == FILE_NOT_FOUND){
+                fprintf(stderr," file '%s' not found. sorry. verify your spelling and try again. \n", arguments[0]);
+            }else{
+            
+                setCurrDir(newFileClusterNumber);
+                
+                getFile();
+            }
             
         }else if(strcmp(command, "quit") == 0){
             exit(1);
@@ -204,9 +224,11 @@ uint8_t validateBS(fat32BS *boot_sector){
 
 void setCurrDir(uint64_t newDirCluster){
     
-    if(newDirCluster == 0){
+    if(newDirCluster == 0 || newDirCluster == 1){
         newDirCluster = 2;
     }
+    
+    fprintf(stderr,"\nNew dir cluster number: %d\n", newDirCluster);
     
     uint64_t FirstSectorofCluster = getDataOnClusterNum(newDirCluster, boot_sector); //get the first cluster
     currDirClusterNum = newDirCluster; //updating the current dir
@@ -266,7 +288,7 @@ int readSector(uint64_t sectorNum){
     size_t n = 0; // number of bytes read
     FILE *source;
     size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
-    newBuf = malloc(BUFFER_SIZE);
+    newBuf = malloc(BUFFER_SIZE*BYTE);
     
     source = fopen(diskImageLocaiton, "r");
     
@@ -280,7 +302,7 @@ int readSector(uint64_t sectorNum){
     
     
     if(source){
-        n = fread(newBuf, 1, BUFFER_SIZE, source);
+        n = fread(newBuf, 1, BUFFER_SIZE*BYTE, source);
     }
 
     if(n != BUFFER_SIZE){
@@ -295,24 +317,46 @@ int readSector(uint64_t sectorNum){
 void printDir(){
     
     int i = 0;
+    uint32_t nextClusterNum = EoC;
+    uint64_t originalCluster = currDirClusterNum; //save current cluster
+    
+    fprintf(stderr,"\n%s\n", "DIRECTORY LISTING");
+    fprintf(stderr,"%s: %s\n", "VOL_ID", vol_ID);
+    
+    printDirHelper();
+    
+        
+    //fetch in a new cluster, if present, set it as current 
+    nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
+    
+    while(nextClusterNum != EndOfClusterResponce){
+        currDirClusterNum = nextClusterNum;
+        printDirHelper();
+        nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
+    }
+    
+    
+    //end
+    currDirClusterNum = originalCluster; //restore current cluster
+    
+}
+
+void printDirHelper(){
+    
+    int i = 0;
     
     setCurrDir(currDirClusterNum); //load content of dir cluster into memory
     
     fatDir *dir = (fatDir*)&newBuf[0];
     
-    
-    //size_t BUFFER_SIZE = boot_sector->BPB_BytesPerSec; //size of the sector (in bytes)
-    //printBuf = malloc(BUFFER_SIZE); //consider using a different buffer for printing
-    
-    fprintf(stderr,"\n%s\n", "DIRECTORY LISTING");
-    fprintf(stderr,"%s: %s\n", "VOL_ID", vol_ID);
+    int test = sizeof(fatDir);
     
     //if root dir, skip over the first entry
     if(isRoot(dir) == TRUE){
         i = sizeof(fatDir);
     }
     
-    for(; i < 16*sizeof(fatDir); i+=sizeof(fatDir)){
+    for(; i <=(boot_sector->BPB_BytesPerSec*BYTE); i+=sizeof(fatDir)){
         dir = (fatDir*)&newBuf[i];
         
         if(dir->DIR_Name[0] == DIR_FREE_STOP){
@@ -335,15 +379,11 @@ void printDir(){
             
             fprintf(stderr,"%s        %d\n",temp, (dir->DIR_FileSize/1024));
         }
-        
-        
-        
-        
-        
     }
 
-    
+
 }
+
 bool verifyRootDir(fatDir *rootDir){
     if( (rootDir->DIR_Attr & ATTR_VOLUME_ID) != ATTR_VOLUME_ID){
         return FALSE;
@@ -470,7 +510,7 @@ uint64_t checkIfDirExists(char *dirName){
     
     fatDir *dir = (fatDir*)&newBuf[0];
     
-    for(; i < 16*sizeof(fatDir); i+=sizeof(fatDir)){
+    for(; i < (boot_sector->BPB_BytesPerSec*BYTE); i+=sizeof(fatDir)){
         dir = (fatDir*)&newBuf[i];
         
         if(dir->DIR_Name[0] == DIR_FREE_STOP){
@@ -504,6 +544,125 @@ uint64_t checkIfDirExists(char *dirName){
     
     return result;
 }
+
+//funciton checks the current dir for a subdirectory existence
+//returns subdir cluster number if found
+//if not found returns -1 (FOLDER_NOT_FOUND)
+uint64_t checkIfFileExists(char *fileName){
+    int i = 0;
+    uint64_t result = FILE_NOT_FOUND;
+    
+    //null terminate
+    //fileName[sizeof(fileName)+1] = '\0';
+    
+    convertToUpperCase(fileName);
+    
+    setCurrDir(currDirClusterNum); //loads dir contents
+    
+    fatDir *dir = (fatDir*)&newBuf[0];
+    
+    for(; i < (boot_sector->BPB_BytesPerSec*BYTE); i+=sizeof(fatDir)){
+        dir = (fatDir*)&newBuf[i];
+        
+        if(dir->DIR_Name[0] == DIR_FREE_STOP){
+            //do nothing
+            return result;
+        }
+        
+        if( (dir->DIR_Attr & ATTR_DIRECTORY) != ATTR_DIRECTORY){
+            
+            char *temp = dir->DIR_Name;
+            
+            //remove whilespaces in temp
+            //fileName[sizeof(fileName)] = '\0';
+            //temp[BS_VolLab_LENGTH-1] = '\0';
+            //processFileName(temp);
+            
+            
+            temp[DIR_NAME_LENGTH] = '\0';
+            
+            if(strcmp(fileName, temp) == 0){
+                if(dir->DIR_FstClusHi != 0x00){
+                    
+                    //mask out the first 4 bits of the high word
+                    uint16_t tempValue = (dir->DIR_FstClusHi);
+                    
+                    //tempValue = tempValue + (uint32_t)dir->DIR_FstClusLo;
+                    
+                    result = (((uint32_t) tempValue)<<16);
+                    result = result | dir->DIR_FstClusLo;                    
+                    
+                }else{
+                    result = dir->DIR_FstClusLo;
+                }
+                
+                
+                
+                
+                
+                
+                
+                return result; //returns the first found dir
+            }
+            
+        }else{
+            
+        }
+        
+        
+    }
+    
+    return result;
+}
+
+void getFile(){
+    
+    int i = 0;
+    uint32_t nextClusterNum = EoC;
+    uint64_t originalCluster = currDirClusterNum; //save current cluster
+    char *writeLoc = call_getcwd();
+    strcat(writeLoc, OUTPUTFILE);
+    FILE* output;
+    
+    output = fopen(writeLoc, "w");
+    
+    
+    
+    //getFileHelper();
+
+    //fetch in a new cluster, if present, set it as current
+    nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
+    
+    while(nextClusterNum != EndOfClusterResponce){
+        currDirClusterNum = nextClusterNum;
+        //getFileHelper();
+        nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
+    }
+    
+    
+    //end
+    currDirClusterNum = originalCluster; //restore current cluster
+
+    
+    
+   
+    
+}
+
+static char* call_getcwd ()
+{
+    char * cwd;
+    cwd = getcwd (0, 0);
+    if (! cwd) {
+        //fprintf (stderr, "getcwd failed: %s\n", strerror (errno));
+    } else {
+        printf ("Saving output in: %s\n", cwd);
+        free (cwd);
+    }
+    
+    return cwd;
+}
+
 
 void convertToUpperCase(char *sPtr){
     while(*sPtr != '\0')

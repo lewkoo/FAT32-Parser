@@ -14,6 +14,7 @@ typedef int bool;
 #define FALSE   0
 
 #define FOLDER_NOT_FOUND -1
+#define FILE_NOT_FOUND -1
 
 #include "fat32.h"
 #include "dir.h"
@@ -21,11 +22,13 @@ typedef int bool;
 void startCL(); //starts the command line interface
 void locateRootDir();
 void printDir();
+void getFile();
 void setCurrDir(uint64_t newDirCluster); //set the current dir based on the cluster number from the FAT
 
 //returns the first cluster number of a given dir
 //by earching the current dir
 uint64_t checkIfDirExists(char *dirName);
+uint64_t checkIfFileExists(char *fileName);
 
 //getters
 unsigned char *getBuffer();
@@ -36,6 +39,8 @@ void setDiskImageLocation(char *diskImageLocaiton);
 void setBootSector(fat32BS *boot_sec);
 
 //helper functions
+static char* call_getcwd();
+void printDirHelper();
 void getCommand();
 void cleanInputUp();
 uint8_t validateBS();
