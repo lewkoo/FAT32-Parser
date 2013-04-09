@@ -34,9 +34,8 @@ uint32_t checkForNextCluster(uint32_t clusterNumber, fat32BS *boot_sector){
         //convert hex value of tempFatEntry->value to uint32_t
         //test the fuck out of this.
         
-        if (1 == sscanf(tempFatEntry->value, "%x"SCNx32, &result)) {
-            // value now contains the value in the string--decimal 255, in this case.
-        }
+        memcpy(&result,&tempFatEntry->value,4);
+        
         
         //result = (uint32_t)tempFatEntry->value;
         
@@ -76,7 +75,7 @@ uint64_t getFatEntOffset (uint32_t clusterNumber, fat32BS *boot_sector){
     
     return ThisFATEntOffset;
 }
-bool checkIfEOC( char *rawEntryValue){
+bool checkIfEOC(unsigned char *rawEntryValue){
     
     bool result = FALSE;
     

@@ -18,7 +18,7 @@
 #define EndOfClusterResponce 0
 
 struct fatEntry_struct {
-    char value[FAT_ENTRY_SIZE];
+   unsigned char value[FAT_ENTRY_SIZE];
 };
 
 typedef struct fatEntry_struct fatEntry;
@@ -33,6 +33,6 @@ uint64_t getFatEntOffset (uint32_t clusterNumber, fat32BS *boot_sector);
 //helper methods
 
 //converts raw entry value into a hex value (for comparing with End Of Cluster Value)
-bool checkIfEOC(char *rawEntryValue);
+bool checkIfEOC(unsigned char *rawEntryValue);
 
 #endif

@@ -104,6 +104,8 @@ void startCL(){
         }else if(strcmp(command, "get") == 0){
             //do get command
             
+            uint64_t originalDirCluster = currDirClusterNum;
+            
             uint64_t newFileClusterNumber = checkIfFileExists(arguments[0]);
             
             uint64_t FirstSectorOfCluster = getDataOnClusterNum(newFileClusterNumber, boot_sector);
@@ -115,6 +117,9 @@ void startCL(){
                 setCurrDir(newFileClusterNumber);
                 
                 getFile();
+                
+                currDirClusterNum = originalDirCluster;
+                setCurrDir(originalDirCluster);
             }
             
         }else if(strcmp(command, "quit") == 0){
@@ -619,29 +624,35 @@ void getFile(){
     
     int i = 0;
     uint32_t nextClusterNum = EoC;
-    uint64_t originalCluster = currDirClusterNum; //save current cluster
+    //uint64_t originalCluster = currDirClusterNum; //save current cluster
     char *writeLoc = call_getcwd();
     strcat(writeLoc, OUTPUTFILE);
     FILE* output;
     
     output = fopen(writeLoc, "w");
     
+    int clusterCount = 0;
     
     
     //getFileHelper();
 
     //fetch in a new cluster, if present, set it as current
     nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
+    clusterCount++;
     
     while(nextClusterNum != EndOfClusterResponce){
         currDirClusterNum = nextClusterNum;
         //getFileHelper();
         nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
+        
+        clusterCount++;
+        //fprintf(stderr," %d ", clusterCount);
+        
     }
     
     
     //end
-    currDirClusterNum = originalCluster; //restore current cluster
+    //currDirClusterNum = originalCluster; //restore current cluster
 
     
     
