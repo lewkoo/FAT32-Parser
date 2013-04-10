@@ -22,7 +22,7 @@ typedef int bool;
 void startCL(); //starts the command line interface
 void locateRootDir();
 void printDir();
-void getFile();
+void getFile(char *fileName);
 void setCurrDir(uint64_t newDirCluster); //set the current dir based on the cluster number from the FAT
 
 //returns the first cluster number of a given dir
@@ -47,7 +47,7 @@ void cleanInputUp();
 uint8_t validateBS();
 int readSector(uint64_t sectorNum);
 
-char *processFileName(char* fileName);
+int processFileName(char* fileName);
 char *processDirName(char *dirName);
 
 bool validateDiskImageLocation();

@@ -30,7 +30,6 @@
 #define DIR_FREE_KEEP_GOING 0xE5
 #define DIR_FREE_STOP       0x00
 #define BYTE    8
-#define OUTPUTFILE  "/output"
 
 //volume ID array
 
@@ -116,14 +115,18 @@ void startCL(){
             
                 setCurrDir(newFileClusterNumber);
                 
-                getFile();
+                getFile(arguments[0]);
                 
                 currDirClusterNum = originalDirCluster;
                 setCurrDir(originalDirCluster);
             }
             
+            fprintf(stderr, "\nDone\n");
+            
         }else if(strcmp(command, "quit") == 0){
-            exit(1);
+            cleanInputUp();
+            free(newBuf);
+            exit(EXIT_SUCCESS);
         }
         else{
             fprintf(stderr,"Incorrect command: %s \n Usage: \n -info : prints information about this drive \n -dir : lists the current directory \n -cd 'directory name' : sets current directory to 'directory name' \n -get 'file name' copies the file name to local system \n -quit : quits the application \n ",origLine);
@@ -231,8 +234,6 @@ void setCurrDir(uint64_t newDirCluster){
         newDirCluster = 2;
     }
     
-    fprintf(stderr,"\nNew dir cluster number: %d\n", newDirCluster);
-    
     uint64_t FirstSectorofCluster = getDataOnClusterNum(newDirCluster, boot_sector); //get the first cluster
     currDirClusterNum = newDirCluster; //updating the current dir
     //read the contents of a sector into the buffer
@@ -297,8 +298,6 @@ int readSector(uint64_t sectorNum){
     
     int result = fseek(source, (long)sectorNum*boot_sector->BPB_BytesPerSec, SEEK_SET);
     
-    int test = ftell(source);
-    
     if(result == 0){
         //success
     }else{
@@ -321,7 +320,6 @@ int readSector(uint64_t sectorNum){
 }
 void printDir(){
     
-    int i = 0;
     uint32_t nextClusterNum = EoC;
     uint64_t originalCluster = currDirClusterNum; //save current cluster
     
@@ -354,7 +352,6 @@ void printDirHelper(){
     
     fatDir *dir = (fatDir*)&newBuf[0];
     
-    int test = sizeof(fatDir);
     
     //if root dir, skip over the first entry
     if(isRoot(dir) == TRUE){
@@ -378,9 +375,9 @@ void printDirHelper(){
         }else if( (dir->DIR_Attr & ATTR_HIDDEN) != ATTR_HIDDEN){
             char *temp = dir->DIR_Name;
             
-            temp = processFileName(temp);
+            processFileName(temp);
             
-            temp[DIR_NAME_LENGTH] = '\0';
+            temp[DIR_NAME_LENGTH+1] = '\0';
             
             fprintf(stderr,"%s        %d\n",temp, (dir->DIR_FileSize/1024));
         }
@@ -436,32 +433,38 @@ void validateBsAndImageLoc(void) {
 //takes the FAT32 formatted file name
 //removes whitespaces, adds a dot between
 //filename and extension
-char *processFileName(char *fileName){
+int processFileName(char *fileName){
     
-    char *output = fileName;
+    char *output = malloc(sizeof(fileName)+1);
+    output = fileName;
     bool dotInserted = FALSE;
     int j = 0;
     int i = 0;
-    for(; i < strlen(fileName); i++,j++){
+    for(; i < (strlen(fileName)+1) && dotInserted == FALSE; i++,j++){
         if(fileName[i]!=' '){
                 output[j] = fileName[i];
         }
         else{
-            if(dotInserted == FALSE){
-                output[j] = '.';
-                output[j++] = fileName[i];
-                dotInserted = TRUE;
-            }
             j--;
             
         }
+        
+        if(i == 8&&dotInserted == FALSE){
+            output[j+3] = fileName[i+2];
+            output[j+2] = fileName[i+1];
+            output[j+1] = fileName[i];
+            output[j] = '.';
+            j+=4;
             
+            dotInserted = TRUE;
+        }
         
         
     }
-    output[j]='\0';
     
-    return output;
+    output[j-1]='\0';
+    
+    return DIR_NAME_LENGTH-(j);
 }
 
 char *processDirName(char *dirName){
@@ -555,6 +558,7 @@ uint64_t checkIfDirExists(char *dirName){
 //if not found returns -1 (FOLDER_NOT_FOUND)
 uint64_t checkIfFileExists(char *fileName){
     int i = 0;
+    int whiteSpacesLeft = 0;
     uint64_t result = FILE_NOT_FOUND;
     
     //null terminate
@@ -581,10 +585,10 @@ uint64_t checkIfFileExists(char *fileName){
             //remove whilespaces in temp
             //fileName[sizeof(fileName)] = '\0';
             //temp[BS_VolLab_LENGTH-1] = '\0';
-            processFileName(temp);
+            whiteSpacesLeft = processFileName(temp);
             
             
-            temp[DIR_NAME_LENGTH] = '\0';
+            temp[DIR_NAME_LENGTH-whiteSpacesLeft] = '\0';
             
             if(strcmp(fileName, temp) == 0){
                 
@@ -615,18 +619,18 @@ uint64_t checkIfFileExists(char *fileName){
     return result;
 }
 
-void getFile(){
+void getFile(char *fileName){
     
     int i = 0;
     uint32_t nextClusterNum = EoC;
     //uint64_t originalCluster = currDirClusterNum; //save current cluster
     char *writeLoc = call_getcwd();
-    strcat(writeLoc, OUTPUTFILE);
+    strcat(writeLoc, "/");
+    strcat(writeLoc, fileName);
     FILE* output;
     
     output = fopen(writeLoc, "w");
     
-    int clusterCount = 0;
     
     
     
@@ -634,17 +638,16 @@ void getFile(){
 
     //fetch in a new cluster, if present, set it as current
     nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
-    clusterCount++;
     
     while(nextClusterNum != EndOfClusterResponce){
         currDirClusterNum = nextClusterNum;
         getFileHelper(output);
         nextClusterNum = checkForNextCluster(currDirClusterNum, boot_sector);
         
-        clusterCount++;
+
         
     }
-    fprintf(stderr," %d ", clusterCount);
+    
     
     
     //end
@@ -679,7 +682,7 @@ static char* call_getcwd ()
     if (! cwd) {
         //fprintf (stderr, "getcwd failed: %s\n", strerror (errno));
     } else {
-        printf ("Saving output in: %s\n", cwd);
+        //printf ("Saving output in: %s\n", cwd);
         free (cwd);
     }
     
